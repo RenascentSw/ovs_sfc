@@ -46,7 +46,7 @@ def cal_sflow_bw(agent_data):
             plot_data[agent].setdefault(interface, {})
             for i, param in enumerate(agent_data[agent][interface]):
                 plot_data[agent][interface].setdefault(param, []).extend(cal_bw_delta_data(agent_data[agent][interface][param]))
-                plt.plot(range(len(plot_data[agent][interface][param])), plot_data[agent][interface][param], label=u'接口：'+interface[:3]+u'参数 '+param,
+                plt.plot(range(len(plot_data[agent][interface][param])), plot_data[agent][interface][param], label=u'端口：'+interface[:3]+u' 参数: '+param,
                 ls=lss[i % len(lss)], marker=filled_markers[i], markersize=5)
     plt.xlabel(u'时间 (s)')
     plt.ylabel(u'吞吐量 '+'(Mbits/s)')
@@ -55,17 +55,6 @@ def cal_sflow_bw(agent_data):
     plt.show()
     pprint.pprint(plot_data)
     # return plot_data
-
-
-# def plot_graph(plot_data):
-#     plt.plot(x,y1,'-bo',label='stop-and-wait ARQ')
-#     plt.plot(x,y2,'-yo',label='go-back-n ARQ')
-#     plt.title('The number of ACK of stop-and-wait ARQ and go-back-n ARQ')
-#     plt.xlabel('LossRate')
-#     plt.ylabel('The number of ACK')
-#     plt.legend(loc='best')
-#     plt.show()
-
 
 if __name__ == '__main__':
     data = run_log()

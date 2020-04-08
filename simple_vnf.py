@@ -29,6 +29,7 @@ def create_hosts(hosts):
                                              hostname=key
                                              # volumes={"/home/light-travelling/resolv.conf": {'bind': '/etc/resolv.conf','mode': 'rw'}}
                                              )
+        print('create host: '+ key)
         hostDict[key] = hostsContainer
     print('create_hosts done!')
     return hostDict
@@ -179,7 +180,7 @@ def ovs_link(net, source, sourceType, target, targetType):
     source_to_target = source + target
     target_to_source = target + source   
     if sourceType == 'switch/ovs' and targetType == 'switch/ovs':
-        print('ovs '+ source + ' links with ovs'+ target)
+        print('ovs '+ source + ' links with ovs '+ target)
         shell = 'sudo ovs-vsctl add-port ' + source + ' ' + source_to_target + '\n' + \
                 'sudo ovs-vsctl add-port ' + target + ' ' + target_to_source + '\n' + \
                 'sudo ovs-vsctl set interface '+ source_to_target + ' type=patch options:peer='+ target_to_source + '\n' + \
