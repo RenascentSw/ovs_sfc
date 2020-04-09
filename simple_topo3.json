@@ -1,0 +1,432 @@
+{
+    "name":"topo1",
+    "status":"STATUS_SAVED",
+    "networks":{
+      "net1": {
+        "name": "net1",
+        "type": "lan",
+        "hosts": {
+          "h1":{
+              "name":"h1",
+              "image_name":"sw/ubuntu:v5",
+              "type":"host",
+              "subtype":"ubuntu",
+              "virtualization":"Docker",
+              "interfaces":[
+                  {
+                      "name":"",
+                      "ip":"10.0.0.1/24",
+                      "netmask":"",
+                      "gateway":"10.0.0.8/24"
+                  }
+              ]
+          },
+          "h2":{
+              "name":"h2",
+              "image_name":"sw/ubuntu:v5",
+              "type":"host",
+              "subtype":"ubuntu",
+              "virtualization":"Docker",
+              "interfaces":[
+                  {
+                      "name":"",
+                      "ip":"10.0.0.2/24",
+                      "netmask":"",
+                      "gateway":"10.0.0.8/24,"
+                  }
+              ]
+          },
+          "h3":{
+                "name":"h3",
+                "image_name":"sw/ubuntu:v5",
+                "type":"host",
+                "subtype":"ubuntu",
+                "virtualization":"Docker",
+                "interfaces":[
+                    {
+                        "name":"",
+                        "ip":"10.0.0.3/24",
+                        "netmask":"",
+                        "gateway":""
+                    }
+                ]
+            },
+            "h4":{
+                "name":"h4",
+                "image_name":"sw/ubuntu:v5",
+                "type":"host",
+                "subtype":"ubuntu",
+                "virtualization":"Docker",
+                "interfaces":[
+                    {
+                        "name":"",
+                        "ip":"10.0.0.4/24",
+                        "netmask":"",
+                        "gateway":""
+                    }
+                ]
+            },
+            "h5":{
+                "name":"h5",
+                "image_name":"sw/ubuntu:v5",
+                "type":"host",
+                "subtype":"ubuntu",
+                "virtualization":"Docker",
+                "interfaces":[
+                    {
+                        "name":"",
+                        "ip":"10.0.0.5/24",
+                        "netmask":"",
+                        "gateway":""
+                    }
+                ]
+            },
+            "h6":{
+                "name":"h6",
+                "image_name":"sw/ubuntu:v5",
+                "type":"host",
+                "subtype":"ubuntu",
+                "virtualization":"Docker",
+                "interfaces":[
+                    {
+                        "name":"",
+                        "ip":"10.0.0.6/24",
+                        "netmask":"",
+                        "gateway":""
+                    }
+                ]
+            },
+            "h7":{
+                "name":"h7",
+                "image_name":"sw/ubuntu:v5",
+                "type":"host",
+                "subtype":"ubuntu",
+                "virtualization":"Docker",
+                "interfaces":[
+                    {
+                        "name":"",
+                        "ip":"10.0.0.7/24",
+                        "netmask":"",
+                        "gateway":""
+                    }
+                ]
+            },
+            "h8":{
+                "name":"h8",
+                "image_name":"sw/ubuntu:v5",
+                "type":"host",
+                "subtype":"ubuntu",
+                "virtualization":"Docker",
+                "interfaces":[
+                    {
+                        "name":"",
+                        "ip":"10.0.0.8/24",
+                        "netmask":"",
+                        "gateway":""
+                    }
+                ]
+            },
+            "h9":{
+                "name":"h9",
+                "image_name":"sw/ubuntu:v5",
+                "type":"host",
+                "subtype":"ubuntu",
+                "virtualization":"Docker",
+                "interfaces":[
+                    {
+                        "name":"",
+                        "ip":"10.0.0.9/24",
+                        "netmask":"",
+                        "gateway":""
+                    }
+                ]
+            },
+            "h10":{
+                "name":"h10",
+                "image_name":"sw/ubuntu:v5",
+                "type":"host",
+                "subtype":"ubuntu",
+                "virtualization":"Docker",
+                "interfaces":[
+                    {
+                        "name":"",
+                        "ip":"10.0.0.10/24",
+                        "netmask":"",
+                        "gateway":""
+                    }
+                ]
+            }
+        },
+        "switches": {
+          "s1": {
+              "name": "s1",
+              "type":"switch",
+              "subtype":"OVS",
+              "stp": true,
+              "host":[
+				{
+					"host_name":"h1",
+					"qos":"",
+					"stp": ""
+				},
+                {
+                    "host_name": "h2",
+                    "qos": "",
+                    "stp": ""
+                },
+                {
+                    "host_name": "h8",
+                    "qos": "",
+                    "stp": ""
+                }
+              ]
+            },
+            "s2": {
+                "name": "s2",
+                "type":"switch",
+                "subtype":"OVS",
+                "stp": true,
+                "host":[
+                  {
+                    "host_name":"h3",
+                    "qos":"",
+                    "stp": ""
+                  },
+                  {
+                    "host_name": "h8",
+                    "qos": "",
+                    "stp": ""
+                  },
+                  {
+                    "host_name": "h9",
+                    "qos": "",
+                    "stp": ""
+                  }
+                ]
+            },
+            "s3": {
+                "name": "s3",
+                "type":"switch",
+                "subtype":"OVS",
+                "stp": true,
+                "host":[
+                  {
+                    "host_name":"h4",
+                    "qos":"",
+                    "stp": ""
+                  },
+                  {
+                    "host_name":"h5",
+                    "qos":"",
+                    "stp": ""
+                  },
+                  {
+                    "host_name":"h9",
+                    "qos":"",
+                    "stp": ""
+                  },
+                  {
+                    "host_name":"h10",
+                    "qos":"",
+                    "stp": ""
+                  }
+                ]
+            },
+            "s4": {
+                "name": "s4",
+                "type":"switch",
+                "subtype":"OVS",
+                "stp": true,
+                "host":[
+                  {
+                    "host_name":"h6",
+                    "qos":"",
+                    "stp": ""
+                  },
+                  {
+                    "host_name":"h7",
+                    "qos":"",
+                    "stp": ""
+                  },
+                  {
+                    "host_name":"h10",
+                    "qos":"",
+                    "stp": ""
+                  }
+                ]
+            }
+        },
+        "links":{
+            "l1":{
+                "name":"l1",
+                "source":"s1",
+                "sourceType":"switch/ovs",
+                "target":"h1",
+                "targetType":"host/ubuntu",
+                "delay": "XX",
+                "jitter": "XX",
+                "loss": "XX%",
+                "max_bandwidth": "XXXXkbit",
+                "burst": "XXXX",
+                "latency": "XXms"
+            },
+            "l2":{
+                "name":"l2",
+                "source":"s1",
+                "sourceType":"switch/ovs",
+                "target":"h2",
+                "targetType":"host/ubuntu",
+                "delay": "XX",
+                "jitter": "XX",
+                "loss": "XX%",
+                "max_bandwidth": "XXXXkbit",
+                "burst": "XXXX",
+                "latency": "XXms"
+            },
+            "l3":{
+                "name":"l3",
+                "source":"s1",
+                "sourceType":"switch/ovs",
+                "target":"h8",
+                "targetType":"host/ubuntu",
+                "delay": "XX",
+                "jitter": "XX",
+                "loss": "XX%",
+                "max_bandwidth": "XXXXkbit",
+                "burst": "XXXX",
+                "latency": "XXms"
+            },
+            "l4":{
+                "name":"l4",
+                "source":"h8",
+                "sourceType":"host/ubuntu",
+                "target":"s2",
+                "targetType":"switch/ovs",
+                "delay": "XX",
+                "jitter": "XX",
+                "loss": "XX%",
+                "max_bandwidth": "XXXXkbit",
+                "burst": "XXXX",
+                "latency": "XXms"
+            },
+            "l5":{
+                "name":"l4",
+                "source":"s2",
+                "sourceType":"switch/ovs",
+                "target":"h3",
+                "targetType":"host/ubuntu",
+                "delay": "XX",
+                "jitter": "XX",
+                "loss": "XX%",
+                "max_bandwidth": "XXXXkbit",
+                "burst": "XXXX",
+                "latency": "XXms"
+            },
+            "l6":{
+                "name":"l4",
+                "source":"s2",
+                "sourceType":"switch/ovs",
+                "target":"h9",
+                "targetType":"host/ubuntu",
+                "delay": "XX",
+                "jitter": "XX",
+                "loss": "XX%",
+                "max_bandwidth": "XXXXkbit",
+                "burst": "XXXX",
+                "latency": "XXms"
+            },
+            "l7":{
+                "name":"l4",
+                "source":"h9",
+                "sourceType":"host/ubuntu",
+                "target":"s3",
+                "targetType":"switch/ovs",
+                "delay": "XX",
+                "jitter": "XX",
+                "loss": "XX%",
+                "max_bandwidth": "XXXXkbit",
+                "burst": "XXXX",
+                "latency": "XXms"
+            },
+            "l8":{
+                "name":"l6",
+                "source":"s3",
+                "sourceType":"switch/ovs",
+                "target":"h4",
+                "targetType":"host/ubuntu",
+                "delay": "XX",
+                "jitter": "XX",
+                "loss": "XX%",
+                "max_bandwidth": "XXXXkbit",
+                "burst": "XXXX",
+                "latency": "XXms"
+            },
+            "l9":{
+                "name":"l7",
+                "source":"s3",
+                "sourceType":"switch/ovs",
+                "target":"h5",
+                "targetType":"host/ubuntu",
+                "delay": "XX",
+                "jitter": "XX",
+                "loss": "XX%",
+                "max_bandwidth": "XXXXkbit",
+                "burst": "XXXX",
+                "latency": "XXms"
+            },
+            "l10":{
+                "name":"l8",
+                "source":"s3",
+                "sourceType":"switch/ovs",
+                "target":"h10",
+                "targetType":"host/ubuntu",
+                "delay": "XX",
+                "jitter": "XX",
+                "loss": "XX%",
+                "max_bandwidth": "XXXXkbit",
+                "burst": "XXXX",
+                "latency": "XXms"
+            },
+            "l11":{
+                "name":"l4",
+                "source":"h10",
+                "sourceType":"host/ubuntu",
+                "target":"s4",
+                "targetType":"switch/ovs",
+                "delay": "XX",
+                "jitter": "XX",
+                "loss": "XX%",
+                "max_bandwidth": "XXXXkbit",
+                "burst": "XXXX",
+                "latency": "XXms"
+            },
+            "l12":{
+                "name":"l9",
+                "source":"s4",
+                "sourceType":"switch/ovs",
+                "target":"h6",
+                "targetType":"host/ubuntu",
+                "delay": "XX",
+                "jitter": "XX",
+                "loss": "XX%",
+                "max_bandwidth": "XXXXkbit",
+                "burst": "XXXX",
+                "latency": "XXms"
+            },
+            "l13":{
+                "name":"l10",
+                "source":"s4",
+                "sourceType":"switch/ovs",
+                "target":"h7",
+                "targetType":"host/ubuntu",
+                "delay": "XX",
+                "jitter": "XX",
+                "loss": "XX%",
+                "max_bandwidth": "XXXXkbit",
+                "burst": "XXXX",
+                "latency": "XXms"
+            }
+        }
+      }
+    }
+}

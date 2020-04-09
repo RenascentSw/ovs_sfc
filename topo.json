@@ -1,0 +1,1116 @@
+{
+  "name":"topo1",
+  "status":"STATUS_SAVED",
+  "networks":{
+    "net1": {
+	  "name": "net1",
+	  "type": "lan",
+      "hosts": {
+        "h1":{
+			"name":"h1",
+			"image_name":"host/ubuntu",
+			"type":"host",
+			"subtype":"ubuntu",
+			"virtualization":"Docker",
+			"interfaces":[
+				{
+					"name":"h1s4",
+					"ip":"",
+					"netmask":"",
+					"gateway":""
+				}
+			],
+			"startup_scripts": [],
+			"configurations": [
+				{
+					"config_name": "record_metrics",
+					"config_value": true
+				},
+				{
+					"config_name": "record_interval",
+					"default_value": 5
+				}
+			]
+		},
+        "h2":{
+			"name":"h2",
+			"image_name":"host/ubuntu",
+			"type":"host",
+			"subtype":"ubuntu",
+			"virtualization":"Docker",
+			"interfaces":[
+				{
+					"name":"h2s4",
+					"ip":"",
+					"netmask":"",
+					"gateway":""
+				}
+			],
+			"startup_scripts": [],
+			"configurations": [
+				{
+					"config_name": "record_metrics",
+					"config_value": true
+				},
+				{
+					"config_name": "record_interval",
+					"default_value": 5
+				}
+			]
+		}
+      },
+      "switches": {
+        "s1": {
+			"name": "s1",
+			"type":"switch",
+			"subtype":"OVS",
+			"stp": true,
+			"host":[
+				{
+					"host_name":"dhcp1",
+					"qos":"",
+					"stp": ""
+				},
+                {
+                    "host_name": "gw1",
+                    "qos": "",
+                    "stp": ""
+                }
+			]
+		},
+        "s2": {
+			"name": "s2",
+			"type":"switch",
+			"subtype":"OVS",
+			"stp": true,
+			"host":[]
+		},
+        "s3": {
+			"name": "s3",
+			"type":"switch",
+			"subtype":"OVS",
+			"stp": true,
+			"host":[
+				{
+					"host_name":"nginx1",
+					"qos":"",
+					"stp": ""
+				},
+                {
+                    "host_name": "web1",
+                    "qos": "",
+                    "stp": ""
+                },
+                {
+                    "host_name": "web2",
+                    "qos": "",
+                    "stp": ""
+                },
+                {
+                    "host_name": "web3",
+                    "qos": "",
+                    "stp": ""
+                }
+			]
+		},
+        "s4": {
+			"name": "s4",
+			"type":"switch",
+			"subtype":"OVS",
+			"stp": true,
+			"host":[
+				{
+					"host_name":"h1",
+					"qos":"",
+					"stp": ""
+				},
+                {
+                    "host_name": "h2",
+                    "qos": "",
+                    "stp": ""
+                }
+			]
+		}
+      },
+      "servers": {
+        "apache":{
+			"web1":{
+				"name":"web1",
+				"image_name":"server/apache",
+				"type":"server",
+				"subtype":"apache",
+				"domainName": "a.b.com",
+				"virtualization": "Docker",
+				"interfaces":[
+					{
+						"name":"web1s3",
+						"ip":"",
+						"netmask":"",
+						"gateway":""
+					}
+				],
+				"x":null,
+				"y":null
+			},
+			"web2":{
+				"name":"web2",
+				"image_name":"server/apache",
+				"type":"server",
+				"subtype":"apache",
+				"domainName": "a.c.com",
+				"virtualization": "Docker",
+				"interfaces":[
+					{
+						"name":"web2s3",
+						"ip":"",
+						"netmask":"",
+						"gateway":""
+					}
+				],
+				"x":null,
+				"y":null
+			},
+			"web3":{
+				"name":"web3",
+				"image_name":"server/apache",
+				"type":"server",
+				"subtype":"apache",
+				"domainName": "a.c.com",
+				"virtualization": "Docker",
+				"interfaces":[
+					{
+						"name":"web3s3",
+						"ip":"",
+						"netmask":"",
+						"gateway":""
+					}
+				],
+				"x":null,
+				"y":null
+			}
+		},
+		"dhcp":{
+			"dhcp1": {
+		        "name": "dhcp1",
+		        "image_name": "server/dhcp",
+		        "type": "server",
+		        "subtype": "dhcp",
+		        "range": ["110.168.10.3", "110.168.10.100"],
+		        "interfaces":[
+		         	{
+			            "name": "dhcp1s1",
+			            "ip": "110.168.10.2/24",
+			            "netmask": "255.255.255.0",
+						"gateway": "110.168.10.1"
+		          	}
+		        ],
+		        "default-lease-time": "21600",
+		        "max-lease-time": "43200",
+		        "x": null,
+		        "y": null
+		    }
+		}
+      },
+      "gateway": {
+			      "name": "gw1",
+			      "image_name":"router/rip",
+			      "type":"router",
+			      "subtype":"rip",
+			      "virtualization": "Docker",
+			      "interfaces":[
+				  {
+					  "name":"gw1s1",
+					  "ip":"110.168.10.1/24",
+					  "netmask":"255.255.255.0"
+				  },
+				  {
+					  "name": "gw1gw2",
+					  "ip": "192.169.1.1/24",
+					  "netmask": "255.255.255.0"
+				  }
+			      ],
+			"networks":[],
+			"x":null,
+			"y":null
+		},
+	  "middle_boxes": {
+        "nginx":{
+			"nginx1":{
+				"name":"nginx1",
+				"image_name":"middle_box/nginx",
+				"type":"server",
+				"subtype":"nginx",
+				"virtualization": "Docker",
+				"startegy": "polling/min_conn",
+				"server": [
+					{
+						"server_name":"",
+						"listen": "80",
+						"location": "proxy_pass http://nginx_pools"
+					}
+
+				],
+				"nginx_pools": [
+					{
+						"name":"web1",
+						"ip": "",
+						"port": "80",
+						"weight": "1"
+					},
+					{
+						"name":"web2",
+						"ip": "",
+						"port": "80",
+						"weight": "1"
+					},
+					{
+						"name":"web3",
+						"ip": "",
+						"port": "80",
+						"weight": "1"
+					}
+
+				],
+				"interfaces":[
+					{
+						"name":"nginx1s3",
+						"ip":"",
+						"netmask":"",
+						"gateway":""
+					}
+				]
+			}
+
+		}
+      },
+      "links": {
+        "l1":{
+			"name":"l1",
+			"source":"gw1",
+			"sourceType":"gateway",
+			"target":"s1",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l2":{
+			"name":"l2",
+			"source":"dhcp1",
+			"sourceType":"server/dhcp",
+			"target":"s1",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l3":{
+			"name":"l3",
+			"source":"s1",
+			"sourceType":"switch/ovs",
+			"target":"s2",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l4":{
+			"name":"l4",
+			"source":"s2",
+			"sourceType":"switch/ovs",
+			"target":"s3",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l5":{
+			"name":"l5",
+			"source":"s2",
+			"sourceType":"switch/ovs",
+			"target":"s4",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l6":{
+			"name":"l6",
+			"source":"web1",
+			"sourceType":"server/apache",
+			"target":"s3",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l7":{
+			"name":"l7",
+			"source":"web2",
+			"sourceType":"server/apache",
+			"target":"s3",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l8":{
+			"name":"l8",
+			"source":"web3",
+			"sourceType":"server/apache",
+			"target":"s3",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l9":{
+			"name":"l9",
+			"source":"nginx1",
+			"sourceType":"middle_box/nginx",
+			"target":"s3",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l10":{
+			"name":"l10",
+			"source":"h1",
+			"sourceType":"host/ubuntu",
+			"target":"s4",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+        "l11":{
+			"name":"l10",
+			"source":"h2",
+			"sourceType":"host/ubuntu",
+			"target":"s4",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		}
+      }
+    },
+    "net2": {
+	  "name": "net2",
+	  "type": "lan",
+      "hosts": {
+        "h3":{
+			"name":"h3",
+			"image_name":"host/ubuntu",
+			"type":"host",
+			"subtype":"ubuntu",
+			"virtualization":"Docker",
+			"interfaces":[
+				{
+					"name":"h3s7",
+					"ip":"",
+					"netmask":"",
+					"gateway":""
+				}
+			],
+			"startup_scripts": [],
+			"configurations": [
+				{
+					"config_name": "record_metrics",
+					"config_value": true
+				},
+				{
+					"config_name": "record_interval",
+					"default_value": 5
+				}
+			]
+		},
+        "h4":{
+			"name":"h4",
+			"image_name":"host/ubuntu",
+			"type":"host",
+			"subtype":"ubuntu",
+			"virtualization":"Docker",
+			"interfaces":[
+				{
+					"name":"h4s7",
+					"ip":"",
+					"netmask":"",
+					"gateway":""
+				}
+			],
+			"startup_scripts": [],
+			"configurations": [
+				{
+					"config_name": "record_metrics",
+					"config_value": true
+				},
+				{
+					"config_name": "record_interval",
+					"default_value": 5
+				}
+			]
+		},
+        "h5":{
+			"name":"h5",
+			"image_name":"host/ubuntu",
+			"type":"host",
+			"subtype":"ubuntu",
+			"virtualization":"Docker",
+			"interfaces":[
+				{
+					"name":"h5s8",
+					"ip":"",
+					"netmask":"",
+					"gateway":""
+				}
+			],
+			"startup_scripts": [],
+			"configurations": [
+				{
+					"config_name": "record_metrics",
+					"config_value": true
+				},
+				{
+					"config_name": "record_interval",
+					"default_value": 5
+				}
+			]
+		},
+        "h6":{
+			"name":"h6",
+			"image_name":"host/ubuntu",
+			"type":"host",
+			"subtype":"ubuntu",
+			"virtualization":"Docker",
+			"interfaces":[
+				{
+					"name":"h6s8",
+					"ip":"",
+					"netmask":"",
+					"gateway":""
+				}
+			],
+			"startup_scripts": [],
+			"configurations": [
+				{
+					"config_name": "record_metrics",
+					"config_value": true
+				},
+				{
+					"config_name": "record_interval",
+					"default_value": 5
+				}
+			]
+		},
+        "h7":{
+			"name":"h7",
+			"image_name":"host/ubuntu",
+			"type":"host",
+			"subtype":"ubuntu",
+			"virtualization":"Docker",
+			"interfaces":[
+				{
+					"name":"h7s9",
+					"ip":"",
+					"netmask":"",
+					"gateway":""
+				}
+			],
+			"startup_scripts": [],
+			"configurations": [
+				{
+					"config_name": "record_metrics",
+					"config_value": true
+				},
+				{
+					"config_name": "record_interval",
+					"default_value": 5
+				}
+			]
+		},
+        "h8":{
+			"name":"h8",
+			"image_name":"host/ubuntu",
+			"type":"host",
+			"subtype":"ubuntu",
+			"virtualization":"Docker",
+			"interfaces":[
+				{
+					"name":"h8s9",
+					"ip":"",
+					"netmask":"",
+					"gateway":""
+				}
+			],
+			"startup_scripts": [],
+			"configurations": [
+				{
+					"config_name": "record_metrics",
+					"config_value": true
+				},
+				{
+					"config_name": "record_interval",
+					"default_value": 5
+				}
+			]
+		},
+        "h9":{
+			"name":"h9",
+			"image_name":"host/ubuntu",
+			"type":"host",
+			"subtype":"ubuntu",
+			"virtualization":"Docker",
+			"interfaces":[
+				{
+					"name":"h9s10",
+					"ip":"",
+					"netmask":"",
+					"gateway":""
+				}
+			],
+			"startup_scripts": [],
+			"configurations": [
+				{
+					"config_name": "record_metrics",
+					"config_value": true
+				},
+				{
+					"config_name": "record_interval",
+					"default_value": 5
+				}
+			]
+		},
+        "h10":{
+			"name":"h10",
+			"image_name":"host/ubuntu",
+			"type":"host",
+			"subtype":"ubuntu",
+			"virtualization":"Docker",
+			"interfaces":[
+				{
+					"name":"h10s10",
+					"ip":"",
+					"netmask":"",
+					"gateway":""
+				}
+			],
+			"startup_scripts": [],
+			"configurations": [
+				{
+					"config_name": "record_metrics",
+					"config_value": true
+				},
+				{
+					"config_name": "record_interval",
+					"default_value": 5
+				}
+			]
+		},
+        "h11":{
+			"name":"h11",
+			"image_name":"host/ubuntu",
+			"type":"host",
+			"subtype":"ubuntu",
+			"virtualization":"Docker",
+			"interfaces":[
+				{
+					"name":"h11s11",
+					"ip":"",
+					"netmask":"",
+					"gateway":""
+				}
+			],
+			"startup_scripts": [],
+			"configurations": [
+				{
+					"config_name": "record_metrics",
+					"config_value": true
+				},
+				{
+					"config_name": "record_interval",
+					"default_value": 5
+				}
+			]
+		},
+        "h12":{
+			"name":"h12",
+			"image_name":"host/ubuntu",
+			"type":"host",
+			"subtype":"ubuntu",
+			"virtualization":"Docker",
+			"interfaces":[
+				{
+					"name":"h12s11",
+					"ip":"",
+					"netmask":"",
+					"gateway":""
+				}
+			],
+			"startup_scripts": [],
+			"configurations": [
+				{
+					"config_name": "record_metrics",
+					"config_value": true
+				},
+				{
+					"config_name": "record_interval",
+					"default_value": 5
+				}
+			]
+		}
+
+      },
+      "switches": {
+        "s5": {
+			"name": "s5",
+			"type":"switch",
+			"subtype":"OVS",
+			"stp": true,
+			"host":[
+				{
+					"host_name":"dhcp2",
+					"qos":"",
+					"stp": ""
+				},
+                {
+                    "host_name": "r2",
+                    "qos": "",
+                    "stp": ""
+                }
+			]
+		},
+        "s6": {
+			"name": "s6",
+			"type":"switch",
+			"subtype":"OVS",
+			"stp": true,
+			"host":[]
+		},
+        "s7": {
+			"name": "s7",
+			"type":"switch",
+			"subtype":"OVS",
+			"stp": true,
+			"host":[
+				{
+					"host_name":"h3",
+					"qos":"",
+					"stp": ""
+				},
+                {
+                    "host_name": "h4",
+                    "qos": "",
+                    "stp": ""
+                }
+			]
+		},
+        "s8": {
+			"name": "s8",
+			"type":"switch",
+			"subtype":"OVS",
+			"stp": true,
+			"host":[
+				{
+					"host_name":"h5",
+					"qos":"",
+					"stp": ""
+				},
+                {
+                    "host_name": "h6",
+                    "qos": "",
+                    "stp": ""
+                }
+			]
+		},
+        "s9": {
+			"name": "s9",
+			"type":"switch",
+			"subtype":"OVS",
+			"stp": true,
+			"host":[
+				{
+					"host_name":"h7",
+					"qos":"",
+					"stp": ""
+				},
+                {
+                    "host_name": "h8",
+                    "qos": "",
+                    "stp": ""
+                }
+			]
+		},
+        "s10": {
+			"name": "s10",
+			"type":"switch",
+			"subtype":"OVS",
+			"stp": true,
+			"host":[
+              {
+					"host_name":"h9",
+					"qos":"",
+					"stp": ""
+				},
+                {
+                    "host_name": "h10",
+                    "qos": "",
+                    "stp": ""
+                }
+            ]
+		},
+        "s11": {
+			"name": "s11",
+			"type":"switch",
+			"subtype":"OVS",
+			"stp": true,
+			"host":[
+				{
+					"host_name":"h11",
+					"qos":"",
+					"stp": ""
+				},
+                {
+                    "host_name": "h12",
+                    "qos": "",
+                    "stp": ""
+                }
+			]
+		}
+      },
+      "servers": {
+        "dhcp":{
+			"dhcp2": {
+		        "name": "dhcp2",
+		        "image_name": "server/dhcp",
+		        "type": "server",
+		        "subtype": "dhcp",
+		        "range": ["120.168.20.3", "120.168.20.100"],
+		        "interfaces":[
+		         	{
+			            "name": "dhcp1s5",
+			            "ip": "120.168.20.2/24",
+			            "netmask": "255.255.255.0",
+						"gateway": "120.168.20.1"
+		          	}
+		        ],
+		        "default-lease-time": "21600",
+		        "max-lease-time": "43200",
+		        "x": null,
+		        "y": null
+		    }
+		}
+      },
+      "gateway":{
+			      "name": "gw2",
+			      "image_name":"router/rip",
+			      "type":"router",
+			      "subtype":"rip",
+			      "virtualization": "Docker",
+			      "interfaces":[
+				  {
+					  "name":"gw2s5",
+					  "ip":"120.168.20.1/24",
+					  "netmask":"255.255.255.0"
+				  },
+				  {
+					  "name": "gw2gw1",
+					  "ip": "192.169.1.2/24",
+					  "netmask": "255.255.255.0"
+				  }
+			      ],
+			"networks":[],
+			"x":null,
+			"y":null
+		},
+      "middle_boxes": {},
+      "links": {
+        "l1":{
+			"name":"l1",
+			"source":"gw2",
+			"sourceType":"gateway",
+			"target":"s5",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l2":{
+			"name":"l2",
+			"source":"dhcp2",
+			"sourceType":"server/dhcp",
+			"target":"s5",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l3":{
+			"name":"l3",
+			"source":"s5",
+			"sourceType":"switch/ovs",
+			"target":"s6",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l4":{
+			"name":"l4",
+			"source":"s6",
+			"sourceType":"switch/ovs",
+			"target":"s7",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l5":{
+			"name":"l5",
+			"source":"s6",
+			"sourceType":"switch/ovs",
+			"target":"s8",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l6":{
+			"name":"l6",
+			"source":"s6",
+			"sourceType":"switch/ovs",
+			"target":"s9",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l7":{
+			"name":"l7",
+			"source":"s6",
+			"sourceType":"switch/ovs",
+			"target":"s10",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l8":{
+			"name":"l8",
+			"source":"s6",
+			"sourceType":"switch/ovs",
+			"target":"s11",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l9":{
+			"name":"l9",
+			"source":"h3",
+			"sourceType":"host/ubuntu",
+			"target":"s7",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l10":{
+			"name":"l10",
+			"source":"h4",
+			"sourceType":"host/ubuntu",
+			"target":"s7",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+        "l11":{
+			"name":"l11",
+			"source":"h5",
+			"sourceType":"host/ubuntu",
+			"target":"s8",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+        "l12":{
+			"name":"l12",
+			"source":"h6",
+			"sourceType":"host/ubuntu",
+			"target":"s8",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l13":{
+			"name":"l13",
+			"source":"h7",
+			"sourceType":"host/ubuntu",
+			"target":"s9",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l14":{
+			"name":"l14",
+			"source":"h8",
+			"sourceType":"host/ubuntu",
+			"target":"s9",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l15":{
+			"name":"l15",
+			"source":"h9",
+			"sourceType":"host/ubuntu",
+			"target":"s10",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l16":{
+			"name":"l16",
+			"source":"h10",
+			"sourceType":"host/ubuntu",
+			"target":"s10",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l17":{
+			"name":"l17",
+			"source":"h11",
+			"sourceType":"host/ubuntu",
+			"target":"s11",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		},
+		"l18":{
+			"name":"l18",
+			"source":"h12",
+			"sourceType":"host/ubuntu",
+			"target":"s11",
+			"targetType":"switch/ovs",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		}
+      }
+    }
+  },
+  "links_net": {
+    "l1":{
+			"name":"l1",
+			"source":"gw1",
+			"sourceType":"gateway",
+            "sourceNet": "net1",
+			"target":"gw2",
+			"targetType":"gateway",
+            "targetNet": "net2",
+			"delay": "XX",
+			"jitter": "XX",
+			"loss": "XX%",
+			"max_bandwidth": "XXXXkbit",
+			"burst": "XXXX",
+			"latency": "XXms"
+		}
+  }
+}

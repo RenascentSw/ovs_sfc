@@ -1,0 +1,90 @@
+{
+    "name":"topo1",
+    "status":"STATUS_SAVED",
+    "networks":{
+      "net1": {
+        "name": "net1",
+        "type": "lan",
+        "hosts": {
+          "h1":{
+              "name":"h1",
+              "image_name":"sw/ubuntu:v5",
+              "type":"host",
+              "subtype":"ubuntu",
+              "virtualization":"Docker",
+              "interfaces":[
+                  {
+                      "name":"h1s1",
+                      "ip":"10.0.0.1/24",
+                      "netmask":"",
+                      "gateway":""
+                  }
+              ]
+          },
+          "h2":{
+              "name":"h2",
+              "image_name":"sw/ubuntu:v5",
+              "type":"host",
+              "subtype":"ubuntu",
+              "virtualization":"Docker",
+              "interfaces":[
+                  {
+                      "name":"h2s1",
+                      "ip":"10.0.0.2/24",
+                      "netmask":"",
+                      "gateway":""
+                  }
+              ]
+          }
+        },
+        "switches": {
+          "s1": {
+              "name": "s1",
+              "type":"switch",
+              "subtype":"OVS",
+              "stp": true,
+              "host":[
+				{
+					"host_name":"h1",
+					"qos":"",
+					"stp": ""
+				},
+                {
+                    "host_name": "h2",
+                    "qos": "",
+                    "stp": ""
+                }
+              ]
+            }
+        },
+        "links":{
+            "l1":{
+                "name":"l1",
+                "source":"h1",
+                "sourceType":"host/ubuntu",
+                "target":"s1",
+                "targetType":"switch/ovs",
+                "delay": "XX",
+                "jitter": "XX",
+                "loss": "XX%",
+                "max_bandwidth": "XXXXkbit",
+                "burst": "XXXX",
+                "latency": "XXms"
+            },
+            "l2":{
+                "name":"l2",
+                "source":"s1",
+                "sourceType":"switch/ovs",
+                "target":"h2",
+                "targetType":"host/ubuntu",
+                "delay": "XX",
+                "jitter": "XX",
+                "loss": "XX%",
+                "max_bandwidth": "XXXXkbit",
+                "burst": "XXXX",
+                "latency": "XXms"
+            }
+        }
+      }
+    }
+}

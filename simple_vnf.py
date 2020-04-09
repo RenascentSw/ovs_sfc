@@ -129,15 +129,19 @@ def meter_limit():
     add_or_del = input("please input 'add_meter' or 'del_meter':")
     if add_or_del == 'add_meter':
         # TODO choose port
+        switch = input('please input which switch :')
+        in_port = input('please input in_port :')
+        out_port = input('please input out_port :')
         max_rate = input('please input max_rate(kbits/s) :')
         burst = input('please input burst(kbits) :')
-        shell = "sudo ovs-vsctl set bridge s1 protocols=OpenFlow13 \n" + \
-                "sudo ovs-ofctl add-meter s1 meter=1,kbps,burst,bands=type=drop,rate=<max_rate>,burst_size=<burst> -O OpenFlow13 \n".replace("<max_rate>", max_rate).replace("<burst>", burst) + \
-                "sudo ovs-ofctl add-flow s1 in_port=1,actions=meter:1,output:2 -O Openflow13"
+        shell = "sudo ovs-vsctl set bridge <switch> protocols=OpenFlow13 \n".replace("<switch>", switch) + \
+                "sudo ovs-ofctl add-meter <switch> meter=1,kbps,burst,bands=type=drop,rate=<max_rate>,burst_size=<burst> -O OpenFlow13 \n".replace("<max_rate>", max_rate).replace("<burst>", burst).replace("<switch>", switch) + \
+                "sudo ovs-ofctl add-flow <switch> in_port=<in>,actions=meter:1,output:<out> -O Openflow13".replace("<switch>", switch).replace("<in>", in_port).replace("<out>", out_port)
         print(shell)
         subprocess.getstatusoutput(shell)
     elif add_or_del == 'del_meter':
-        shell = "sudo ovs-ofctl del-meters s1 meter=all -O openflow13"
+        switch = input('please input which switch :')
+        shell = "sudo ovs-ofctl del-meters <switch> meter=all -O openflow13".replace("<switch>", switch)
         print(shell)
         subprocess.getstatusoutput(shell)
     else:
@@ -147,8 +151,14 @@ def meter_limit():
 #  set sflow monitoring
 def deploy_sflow():
     print("# sflow monitoring")
-    shell = "sudo ifconfig s1 10.0.0.3/24 \n" + \
-            "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s1 target=\\\"127.0.0.1:6343\\\"  header=128  sampling=64 polling=1 -- set bridge s1 sflow=@sflow"
+    shell = "sudo ifconfig s1 10.0.0.101/24 \n" + \
+            "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s1 target=\\\"127.0.0.1:6343\\\"  header=128  sampling=64 polling=1 -- set bridge s1 sflow=@sflow \n" + \
+            "sudo ifconfig s2 10.0.0.102/24 \n" + \
+            "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s2 target=\\\"127.0.0.1:6343\\\"  header=128  sampling=64 polling=1 -- set bridge s2 sflow=@sflow \n" + \
+            "sudo ifconfig s3 10.0.0.103/24 \n" + \
+            "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s3 target=\\\"127.0.0.1:6343\\\"  header=128  sampling=64 polling=1 -- set bridge s3 sflow=@sflow \n" + \
+            "sudo ifconfig s4 10.0.0.104/24 \n" + \
+            "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s4 target=\\\"127.0.0.1:6343\\\"  header=128  sampling=64 polling=1 -- set bridge s4 sflow=@sflow \n" 
     print(shell)
     subprocess.getstatusoutput(shell)
 
@@ -159,6 +169,18 @@ def search_for_interface():
     print(shell)
     _, result = subprocess.getstatusoutput(shell)
     print("result:\n", result)
+
+
+# clear topo
+def clear_topo():
+    print("# clear topo")
+    clear_choice = input("please input 'clear1' or 'clear2':")
+    if clear_choice == 'clear1':
+        shell = "sudo sh ./clear1.sh"
+        subprocess.getstatusoutput(shell)
+    elif clear_choice == 'clear2':
+        shell = "sudo sh ./clear2.sh"
+        subprocess.getstatusoutput(shell)
 
 
 def ovs_link(net, source, sourceType, target, targetType):
@@ -195,18 +217,18 @@ def ovs_link(net, source, sourceType, target, targetType):
             subprocess.getstatusoutput(shell)
         else:  # have ip address
             shell = 'sudo ovs-docker add-port ' + target + " " + source_to_target + " " + source + \
-            " --ipaddress=" + net['hosts'][source]['interfaces'][0]['ip']
+            " --ipaddress=" + net['hosts'][source]['interfaces'][0]['ip'] #+ " --gateway=" + net['hosts'][source]['interfaces'][0]['gateway']
             print(shell)
             subprocess.getstatusoutput(shell)
     else:  # for source ovs
-        print('ovs '+ source + ' links with host'+ target)
+        print('ovs '+ source + ' links with host '+ target)
         if net['hosts'][target]['interfaces'][0]['ip'] == "":
             shell = 'sudo ovs-docker add-port ' + source + " " + target_to_source + " " + target
             print(shell)
             subprocess.getstatusoutput(shell)
         else:
             shell = 'sudo ovs-docker add-port ' + source + " " + target_to_source + " " + target + \
-            " --ipaddress=" + net['hosts'][target]['interfaces'][0]['ip']
+            " --ipaddress=" + net['hosts'][target]['interfaces'][0]['ip'] #+ " --gateway=" + net['hosts'][target]['interfaces'][0]['gateway']
             print(shell)
             subprocess.getstatusoutput(shell)
 
@@ -230,6 +252,7 @@ def run(networks):
                     6. meter limit/del meter
                     7. search for interface
                     8. deploy sflow
+                    9. clear topo
                 """
     # print(start_words)
     while True:
@@ -252,11 +275,20 @@ def run(networks):
             search_for_interface()
         elif choice == '8':
             deploy_sflow()
+        elif choice == '9':
+            clear_topo()
         else:
             print('unknown choice,retry again!')
 
 
 if __name__ == '__main__':
-    with open('simple_topo.json','r') as f:
-        topo = json.load(f)
+    print("# start to read topo……")
+    topo_choice = input("please input 'topo1' or 'topo2':")
+    topo = ''
+    if topo_choice == 'topo1':
+        with open('simple_topo1.json','r') as f:
+            topo = json.load(f)
+    elif topo_choice == 'topo2':
+        with open('simple_topo2.json','r') as f:
+            topo = json.load(f)
     run(topo['networks'])
