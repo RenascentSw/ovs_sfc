@@ -2,4 +2,8 @@
 ./idea
 *.png
 *.log
-./参考代码
+参考代码
+.vscode
+__pycache__
+*.rar
+*.zip
