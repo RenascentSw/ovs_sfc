@@ -151,14 +151,23 @@ def meter_limit():
 #  set sflow monitoring
 def deploy_sflow():
     print("# sflow monitoring")
-    shell = "sudo ifconfig s1 10.0.0.101/24 \n" + \
-            "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s1 target=\\\"127.0.0.1:6343\\\"  header=128  sampling=64 polling=1 -- set bridge s1 sflow=@sflow \n" + \
-            "sudo ifconfig s2 10.0.0.102/24 \n" + \
-            "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s2 target=\\\"127.0.0.1:6343\\\"  header=128  sampling=64 polling=1 -- set bridge s2 sflow=@sflow \n" + \
-            "sudo ifconfig s3 10.0.0.103/24 \n" + \
-            "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s3 target=\\\"127.0.0.1:6343\\\"  header=128  sampling=64 polling=1 -- set bridge s3 sflow=@sflow \n" + \
-            "sudo ifconfig s4 10.0.0.104/24 \n" + \
-            "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s4 target=\\\"127.0.0.1:6343\\\"  header=128  sampling=64 polling=1 -- set bridge s4 sflow=@sflow \n" 
+    add_or_del = input("please input 'deploy' or 'clear':")
+    shell = ''
+    if add_or_del == 'deploy':
+        shell = "sudo ifconfig s1 10.0.0.101/24 \n" + \
+                "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s1 target=\\\"127.0.0.1:6343\\\"  header=128  sampling=64 polling=1 -- set bridge s1 sflow=@sflow \n" + \
+                "sudo ifconfig s2 10.0.0.102/24 \n" + \
+                "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s2 target=\\\"127.0.0.1:6343\\\"  header=128  sampling=64 polling=1 -- set bridge s2 sflow=@sflow \n" + \
+                "sudo ifconfig s3 10.0.0.103/24 \n" + \
+                "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s3 target=\\\"127.0.0.1:6343\\\"  header=128  sampling=64 polling=1 -- set bridge s3 sflow=@sflow \n" + \
+                "sudo ifconfig s4 10.0.0.104/24 \n" + \
+                "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s4 target=\\\"127.0.0.1:6343\\\"  header=128  sampling=64 polling=1 -- set bridge s4 sflow=@sflow \n"
+    elif add_or_del == 'clear':
+        shell = "sudo ovs-vsctl -- clear Bridge s1 sflow \n" + \
+                "sudo ovs-vsctl -- clear Bridge s2 sflow \n" + \
+                "sudo ovs-vsctl -- clear Bridge s3 sflow \n" + \
+                "sudo ovs-vsctl -- clear Bridge s4 sflow \n"
+ 
     print(shell)
     subprocess.getstatusoutput(shell)
 

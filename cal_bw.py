@@ -18,7 +18,7 @@ agent_dict = {
 # plt.rcParams['font.sans-serif'] = ['SimHei']
 def run_log():
     monitor_data = dict(agent={})
-    with open('monitor.log', 'r') as f:
+    with open('monitor_ori.log', 'r') as f:
         for line in f:
             if line.startswith('s'):
                 continue
