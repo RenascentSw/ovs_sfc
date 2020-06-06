@@ -154,14 +154,14 @@ def deploy_sflow():
     add_or_del = input("please input 'deploy' or 'clear':")
     shell = ''
     if add_or_del == 'deploy':
-        shell = "sudo ifconfig s1 10.0.0.101/24 \n" + \
-                "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s1 target=\\\"127.0.0.1:6343\\\"  header=128  sampling=64 polling=1 -- set bridge s1 sflow=@sflow \n" + \
-                "sudo ifconfig s2 10.0.0.102/24 \n" + \
-                "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s2 target=\\\"127.0.0.1:6343\\\"  header=128  sampling=64 polling=1 -- set bridge s2 sflow=@sflow \n" + \
-                "sudo ifconfig s3 10.0.0.103/24 \n" + \
-                "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s3 target=\\\"127.0.0.1:6343\\\"  header=128  sampling=64 polling=1 -- set bridge s3 sflow=@sflow \n" + \
-                "sudo ifconfig s4 10.0.0.104/24 \n" + \
-                "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s4 target=\\\"127.0.0.1:6343\\\"  header=128  sampling=64 polling=1 -- set bridge s4 sflow=@sflow \n"
+        shell = "sudo ifconfig s5 12.168.0.1/24 \n" + \
+                "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s5 target=\\\"172.24.1.181:6342\\\"  header=128  sampling=64 polling=1 -- set bridge s5 sflow=@sflow \n" + \
+                "sudo ifconfig s6 12.168.0.2/24 \n" + \
+                "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s6 target=\\\"172.24.1.181:6342\\\"  header=128  sampling=64 polling=1 -- set bridge s6 sflow=@sflow \n" + \
+                "sudo ifconfig s7 12.168.0.3/24 \n" + \
+                "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s7 target=\\\"172.24.1.181:6342\\\"  header=128  sampling=64 polling=1 -- set bridge s7 sflow=@sflow \n" + \
+                "sudo ifconfig s8 12.168.0.4/24 \n" + \
+                "sudo ovs-vsctl -- --id=@sflow create sFlow agent=s8 target=\\\"172.24.1.181:6342\\\"  header=128  sampling=64 polling=1 -- set bridge s8 sflow=@sflow \n"
         print(shell)
         subprocess.getstatusoutput(shell)
     elif add_or_del == 'clear':
@@ -173,6 +173,8 @@ def deploy_sflow():
         subprocess.getstatusoutput(shell)
     else:
         print("unknown choice!")
+ 
+    
 
 
 #  search for interface
@@ -303,6 +305,6 @@ if __name__ == '__main__':
         with open('simple_topo1.json','r') as f:
             topo = json.load(f)
     elif topo_choice == 'topo2':
-        with open('simple_topo2.json','r') as f:
+        with open('simple_topo2_program_test2.json','r') as f:
             topo = json.load(f)
     run(topo['networks'])

@@ -6,9 +6,9 @@
         "name": "net1",
         "type": "lan",
         "hosts": {
-          "h1":{
-              "name":"h1",
-              "image_name":"sw/ubuntu:v5",
+          "h8":{
+              "name":"h8",
+              "image_name":"host/ubuntu",
               "type":"host",
               "subtype":"ubuntu",
               "virtualization":"Docker",
@@ -21,9 +21,9 @@
                   }
               ]
           },
-          "h2":{
-              "name":"h2",
-              "image_name":"sw/ubuntu:v5",
+          "h9":{
+              "name":"h9",
+              "image_name":"host/ubuntu",
               "type":"host",
               "subtype":"ubuntu",
               "virtualization":"Docker",
@@ -36,9 +36,9 @@
                   }
               ]
           },
-          "h3":{
-                "name":"h3",
-                "image_name":"sw/ubuntu:v5",
+          "h10":{
+                "name":"h10",
+                "image_name":"host/ubuntu",
                 "type":"host",
                 "subtype":"ubuntu",
                 "virtualization":"Docker",
@@ -51,9 +51,9 @@
                     }
                 ]
             },
-            "h4":{
-                "name":"h4",
-                "image_name":"sw/ubuntu:v5",
+            "h11":{
+                "name":"h11",
+                "image_name":"host/ubuntu",
                 "type":"host",
                 "subtype":"ubuntu",
                 "virtualization":"Docker",
@@ -66,9 +66,9 @@
                     }
                 ]
             },
-            "h5":{
-                "name":"h5",
-                "image_name":"sw/ubuntu:v5",
+            "h12":{
+                "name":"h12",
+                "image_name":"host/ubuntu",
                 "type":"host",
                 "subtype":"ubuntu",
                 "virtualization":"Docker",
@@ -81,9 +81,9 @@
                     }
                 ]
             },
-            "h6":{
-                "name":"h6",
-                "image_name":"sw/ubuntu:v5",
+            "h13":{
+                "name":"h13",
+                "image_name":"host/ubuntu",
                 "type":"host",
                 "subtype":"ubuntu",
                 "virtualization":"Docker",
@@ -96,9 +96,9 @@
                     }
                 ]
             },
-            "h7":{
-                "name":"h7",
-                "image_name":"sw/ubuntu:v5",
+            "h14":{
+                "name":"h14",
+                "image_name":"host/ubuntu",
                 "type":"host",
                 "subtype":"ubuntu",
                 "virtualization":"Docker",
@@ -114,68 +114,68 @@
             
         },
         "switches": {
-          "s1": {
-              "name": "s1",
+          "s5": {
+              "name": "s5",
               "type":"switch",
               "subtype":"OVS",
               "stp": true,
               "host":[
 				{
-					"host_name":"h1",
+					"host_name":"h8",
 					"qos":"",
 					"stp": ""
 				},
                 {
-                    "host_name": "h2",
+                    "host_name": "h9",
                     "qos": "",
                     "stp": ""
                 }
               ]
             },
-            "s2": {
-                "name": "s2",
+            "s6": {
+                "name": "s6",
                 "type":"switch",
                 "subtype":"OVS",
                 "stp": true,
                 "host":[
                   {
-                    "host_name":"h3",
+                    "host_name":"h10",
                     "qos":"",
                     "stp": ""
                   }
                 ]
             },
-            "s3": {
-                "name": "s3",
+            "s7": {
+                "name": "s7",
                 "type":"switch",
                 "subtype":"OVS",
                 "stp": true,
                 "host":[
                   {
-                    "host_name":"h4",
+                    "host_name":"h11",
                     "qos":"",
                     "stp": ""
                   },
                   {
-                    "host_name":"h5",
+                    "host_name":"h12",
                     "qos":"",
                     "stp": ""
                   }
                 ]
             },
-            "s4": {
-                "name": "s4",
+            "s8": {
+                "name": "s8",
                 "type":"switch",
                 "subtype":"OVS",
                 "stp": true,
                 "host":[
                   {
-                    "host_name":"h6",
+                    "host_name":"h13",
                     "qos":"",
                     "stp": ""
                   },
                   {
-                    "host_name":"h7",
+                    "host_name":"h14",
                     "qos":"",
                     "stp": ""
                   }
@@ -185,10 +185,10 @@
         "links":{
             "l1":{
                 "name":"l1",
-                "source":"s1",
+                "source":"s5",
                 "sourceType":"switch/ovs",
-                "target":"h1",
-                "targetType":"sw/ubuntu:v5",
+                "target":"h8",
+                "targetType":"host/ubuntu",
                 "delay": "XX",
                 "jitter": "XX",
                 "loss": "XX%",
@@ -198,10 +198,10 @@
             },
             "l2":{
                 "name":"l2",
-                "source":"s1",
+                "source":"s5",
                 "sourceType":"switch/ovs",
-                "target":"h2",
-                "targetType":"sw/ubuntu:v5",
+                "target":"h9",
+                "targetType":"host/ubuntu",
                 "delay": "XX",
                 "jitter": "XX",
                 "loss": "XX%",
@@ -211,9 +211,9 @@
             },
             "l3":{
                 "name":"l3",
-                "source":"s1",
+                "source":"s5",
                 "sourceType":"switch/ovs",
-                "target":"s2",
+                "target":"s6",
                 "targetType":"switch/ovs",
                 "delay": "XX",
                 "jitter": "XX",
@@ -224,10 +224,10 @@
             },
             "l4":{
                 "name":"l4",
-                "source":"s2",
+                "source":"s6",
                 "sourceType":"switch/ovs",
-                "target":"h3",
-                "targetType":"sw/ubuntu:v5",
+                "target":"h10",
+                "targetType":"host/ubuntu",
                 "delay": "XX",
                 "jitter": "XX",
                 "loss": "XX%",
@@ -237,9 +237,9 @@
             },
             "l5":{
                 "name":"l5",
-                "source":"s2",
+                "source":"s6",
                 "sourceType":"switch/ovs",
-                "target":"s3",
+                "target":"s7",
                 "targetType":"switch/ovs",
                 "delay": "XX",
                 "jitter": "XX",
@@ -250,10 +250,10 @@
             },
             "l6":{
                 "name":"l6",
-                "source":"s3",
+                "source":"s7",
                 "sourceType":"switch/ovs",
-                "target":"h4",
-                "targetType":"sw/ubuntu:v5",
+                "target":"h11",
+                "targetType":"host/ubuntu",
                 "delay": "XX",
                 "jitter": "XX",
                 "loss": "XX%",
@@ -263,10 +263,10 @@
             },
             "l7":{
                 "name":"l7",
-                "source":"s3",
+                "source":"s7",
                 "sourceType":"switch/ovs",
-                "target":"h5",
-                "targetType":"sw/ubuntu:v5",
+                "target":"h12",
+                "targetType":"host/ubuntu",
                 "delay": "XX",
                 "jitter": "XX",
                 "loss": "XX%",
@@ -276,9 +276,9 @@
             },
             "l8":{
                 "name":"l8",
-                "source":"s3",
+                "source":"s7",
                 "sourceType":"switch/ovs",
-                "target":"s4",
+                "target":"s8",
                 "targetType":"switch/ovs",
                 "delay": "XX",
                 "jitter": "XX",
@@ -289,10 +289,10 @@
             },
             "l9":{
                 "name":"l9",
-                "source":"s4",
+                "source":"s8",
                 "sourceType":"switch/ovs",
-                "target":"h6",
-                "targetType":"sw/ubuntu:v5",
+                "target":"h13",
+                "targetType":"host/ubuntu",
                 "delay": "XX",
                 "jitter": "XX",
                 "loss": "XX%",
@@ -302,10 +302,10 @@
             },
             "l10":{
                 "name":"l10",
-                "source":"s4",
+                "source":"s8",
                 "sourceType":"switch/ovs",
-                "target":"h7",
-                "targetType":"sw/ubuntu:v5",
+                "target":"h14",
+                "targetType":"host/ubuntu",
                 "delay": "XX",
                 "jitter": "XX",
                 "loss": "XX%",
