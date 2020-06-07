@@ -13,20 +13,20 @@ def create_container():
 def start_container():
     shell = "docker start node-exporter && docker start sflow_pro && docker start cadvisor && docker start prometheus && docker start grafana"
     print(shell)
-    _, result = subprocess.getstatusoutput(shell)
-    print(result)
+    exitcode, result = subprocess.getstatusoutput(shell)
+    print("result:",result,"exitcode:",exitcode)
 
 def stop_container():
     shell = "docker stop prometheus && docker stop grafana && docker stop sflow_pro && docker stop cadvisor && docker stop node-exporter"
     print(shell)
-    _, result = subprocess.getstatusoutput(shell)
-    print(result)
+    exitcode, result = subprocess.getstatusoutput(shell)
+    print("result:",result,"exitcode:",exitcode)
 
 def deploy_sflow():
     name = input("input ovs_name:")
     ip = input("input ip:")
     shell_ori = "sudo ifconfig <ovs_name> <ovs_ip> \n" + \
-                "sudo ovs-vsctl -- --id=@sflow create sFlow agent=<ovs_name> target=\\\"172.24.1.181:6343\\\"  header=128  sampling=64 polling=1 -- set bridge <ovs_name> sflow=@sflow \n"
+                "sudo ovs-vsctl -- --id=@sflow create sFlow agent=<ovs_name> target=\\\"172.24.1.181:6343\\\"  header=128  sampling=10 polling=1 -- set bridge <ovs_name> sflow=@sflow \n"
     shell = shell_ori.replace("<ovs_name>",name).replace("<ovs_ip>", ip)
     print(shell)
     _, result = subprocess.getstatusoutput(shell)
