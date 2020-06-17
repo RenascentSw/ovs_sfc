@@ -11,8 +11,8 @@ class Monitor():
         self.sflow_rt_port = sflow_rt_port
     
 
-    # TODO: 创建容器？import docker?
-    def create_container(self):
+    # 根据IP是master服务器与否，创建监控容器
+    def create_monitor_container(self):
         if self.ip == self.master_ip:
             shell =  "docker run -d -p 9100:9100   -v \"/proc:/host/proc\"   -v \"/sys:/host/sys\"   -v \"/:/rootfs\"   --privileged=true  --name=node-exporter  --net=host   weis88/node-exporter:v1   --path.procfs /host/proc   --path.sysfs /host/sys   --collector.filesystem.ignored-mount-points \"^/(sys|proc|dev|host|etc)($|/)\" \n" + \
             "docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro --volume=/var/lib/docker/:/var/lib/docker:ro --publish=8081:8080 --detach=true --name=cadvisor google/cadvisor:latest \n" + \
@@ -32,7 +32,7 @@ class Monitor():
             print(result)
             return json.dumps({self.ip:"Some Error!"})
 
-    # 启动监控容器
+    # 根据IP是master服务器与否，启动监控容器
     def start_monitor_container(self):
         if self.ip == self.master_ip:
             shell = "docker start node-exporter && docker start cadvisor && docker start prometheus && docker start grafana && docker start sflow_pro" 
@@ -46,7 +46,7 @@ class Monitor():
             print(result)
             return json.dumps({self.ip:"Some Error!"})
     
-    # 停止监控容器
+    # 根据IP是master服务器与否，停止监控容器
     def stop_monitor_container(self):
         if self.ip == self.master_ip:
             shell = "docker stop prometheus && docker stop grafana && docker stop cadvisor && docker stop node-exporter && docker stop sflow_pro"
@@ -142,6 +142,3 @@ class Monitor():
             shell = "sudo ovs-vsctl -- clear Bridge <ovs_name> sflow \n".replace("<ovs_name>",name)
             subprocess.getstatusoutput(shell)
         return json.dumps({lan: 'sFlow clear success!'})
-        
-    
-    #TODO: 监控的细节？比如监控那个OVS？似乎没必要——直接通过url访问就可以
