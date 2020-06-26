@@ -14,15 +14,15 @@ class Monitor():
     # 根据IP是master服务器与否，创建监控容器
     def create_monitor_container(self):
         if self.ip == self.master_ip:
-            shell =  "docker run -d -p 9100:9100   -v \"/proc:/host/proc\"   -v \"/sys:/host/sys\"   -v \"/:/rootfs\"   --privileged=true  --name=node-exporter  --net=host   weis88/node-exporter:v1   --path.procfs /host/proc   --path.sysfs /host/sys   --collector.filesystem.ignored-mount-points \"^/(sys|proc|dev|host|etc)($|/)\" \n" + \
-            "docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro --volume=/var/lib/docker/:/var/lib/docker:ro --publish=8081:8080 --detach=true --name=cadvisor google/cadvisor:latest \n" + \
-            "docker run -d -p 9090:9090 -v /home/monitor/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml --name prometheus --net=host weis88/prometheus:v1 \n" + \
-            "docker run -d -i -p 3000:3000 -e \"GF_SERVER_ROOT_URL=http://grafana.server.name\" -e \"GF_SECURITY_ADMIN_PASSWORD=secret\" --net=host --name=grafana weis88/grafana:v1 \n" + \
-            "docker run -d --name=sflow_pro -p 8008:8008 -p 6343:6343/udp weis88/sflow_pro:v1 -Dsnmp.ifname=yes"
+            shell =  "docker run -d -p 9100:9100   -v \"/proc:/host/proc\"   -v \"/sys:/host/sys\"   -v \"/:/rootfs\"   --privileged=true  --name=node-exporter  --net=host   prom/node-exporter   --path.procfs /host/proc   --path.sysfs /host/sys   --collector.filesystem.ignored-mount-points \"^/(sys|proc|dev|host|etc)($|/)\" \n" + \
+                "docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro --volume=/var/lib/docker/:/var/lib/docker:ro --publish=8081:8080 --detach=true --name=cadvisor google/cadvisor:latest \n" + \
+                "docker run -d -p 9090:9090 -v /home/monitor/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml --name prometheus --net=host prom/prometheus \n" + \
+                "docker run -d -i -p 3000:3000 --privileged=true -e \"GF_SERVER_ROOT_URL=http://grafana.server.name\" -e \"GF_SECURITY_ADMIN_PASSWORD=secret\" --net=host --name=grafana grafana/grafana \n" + \
+                "docker run -d --name=sflow_pro -p 8008:8008 -p 6343:6343/udp sflow/prometheus -Dsnmp.ifname=yes"
             
         else:
-            shell =  "docker run -d -p 9100:9100   -v \"/proc:/host/proc\"   -v \"/sys:/host/sys\"   -v \"/:/rootfs\"   --privileged=true  --name=node-exporter  --net=host   weis88/node-exporter:v1   --path.procfs /host/proc   --path.sysfs /host/sys   --collector.filesystem.ignored-mount-points \"^/(sys|proc|dev|host|etc)($|/)\" \n" + \
-            "docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro --volume=/var/lib/docker/:/var/lib/docker:ro --publish=8080:8080 --detach=true --name=cadvisor google/cadvisor:latest \n" 
+            shell =  "docker run -d -p 9100:9100   -v \"/proc:/host/proc\"   -v \"/sys:/host/sys\"   -v \"/:/rootfs\"   --privileged=true  --name=node-exporter  --net=host prom/node-exporter --path.procfs /host/proc   --path.sysfs /host/sys   --collector.filesystem.ignored-mount-points \"^/(sys|proc|dev|host|etc)($|/)\" \n" + \
+                "docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro --volume=/var/lib/docker/:/var/lib/docker:ro --publish=8080:8080 --detach=true --name=cadvisor google/cadvisor:latest \n" 
         print(shell)
         exitcode, result = subprocess.getstatusoutput(shell)
         if exitcode == "0":

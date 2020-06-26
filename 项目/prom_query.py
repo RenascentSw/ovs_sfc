@@ -165,7 +165,12 @@ def query(query_choice):
         type_name = 'node'
     elif "sflow" in query_choice:
         type_name = 'sflow'
-    query_expr_list = query_dict[query_choice]
+    if 'other' in query_choice:
+        query_expr_list = []
+        type_name = 'other'
+        query_expr_list.append(input("输入查询数据的Prometheus表达式："))
+    else:
+        query_expr_list = query_dict[query_choice]
     range_or_instant = input("选择数据输出类型：range or instant：")
     if range_or_instant == "range":
         # history_len = input("输入数据跨度（单位：s）: ") # 数据跨度（单位：s）
@@ -175,8 +180,9 @@ def query(query_choice):
         step = input("输入数据点的时间间隔（单位：s）:") # 每个数据点之间的间隔（单位：s）
         metric_datas = get_range_metric_data({"PROMETHEUS_URL": "http://localhost:9090/"}, query_expr_list, start_time, end_time, step)
         pprint.pprint(metric_datas)
-        range_data = range_ori_data_to_kv(metric_datas, type_name)
-        pprint.pprint(range_data)
+        if 'other' not in query_choice:
+            range_data = range_ori_data_to_kv(metric_datas, type_name)
+            pprint.pprint(range_data)
         # 存储
         # filename = range_or_instant + '_' + query_choice + '_' +  str(start_time) + '_to_' + str(end_time) + "_" + "_step_" + step
         # with open(filename + ".json", 'w') as f:
@@ -185,7 +191,7 @@ def query(query_choice):
         #     json.dump(range_data, f, indent=4)  # 整理为一定格式的数据
     elif range_or_instant == "instant":
         metric_datas = get_instant_metric_data({"PROMETHEUS_URL": "http://localhost:9090/"}, query_expr_list)
-        # pprint.pprint(metric_datas)
+        pprint.pprint(metric_datas)
         instant_data = instant_ori_data_to_kv(metric_datas, type_name)
         pprint.pprint(instant_data)
         # 存储
@@ -199,31 +205,34 @@ def query(query_choice):
 
 def run_query():
     start_words = """please choose a number：
-                    1. CPU Utilization
-                    2. Memory
-                    3. Disk Utilization
-                    4. Load
-                    5. Docker Sent Traffic
-                    6. Docker Receive Traffic
-                    7. sFlow In throughput
+                    1. Other metrics
+                    2. CPU Utilization
+                    3. Memory
+                    4. Disk Utilization
+                    5. Average Load
+                    6. Docker Sent Traffic
+                    7. Docker Receive Traffic
+                    8. sFlow In throughput
                 """
     while True:
         choice = input(start_words)
         if choice == 'exit':
             break
         elif choice == '1':
-            query('node_cpu')
+            query('other_metric')
         elif choice == '2':
-            query('node_mem')
+            query('node_cpu')
         elif choice == '3':
-            query('node_disk')
+            query('node_mem')
         elif choice == '4':
-            query('node_load')
+            query('node_disk')
         elif choice == '5':
-            query('docker_sent_traffic')
+            query('node_load')
         elif choice == '6':
-            query('docker_recv_traffic')
+            query('docker_sent_traffic')
         elif choice == '7':
+            query('docker_recv_traffic')
+        elif choice == '8':
             query('sflow_ifinoctets')
         else:
             print('unknown choice,retry again!')
