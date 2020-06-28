@@ -152,6 +152,43 @@ class Monitor_Query():
                 metric_dict[agent].setdefault(ifname, 0)
                 metric_dict[agent][ifname] = values[1]
         return metric_dict
+    
+    def json_output(self, metric_datas, type_name, range_or_instant, query_choice):
+        metric_dict = {}
+        #TODO:调整JSON
+        if "docker" in type_name:
+            metric_dict['type'] = 'docker'
+            metric_dict = self.json_change(metric_dict['type'], metric_dict, metric_datas, range_or_instant, query_choice)
+        elif "node" in type_name:
+            metric_dict['type'] = 'node'
+            metric_dict = self.json_change(metric_dict['type'], metric_dict, metric_datas, range_or_instant, query_choice)
+        elif "sflow" in type_name:
+            metric_dict['type'] = 'sflow'
+            metric_dict = self.json_change(metric_dict['type'], metric_dict, metric_datas, range_or_instant, query_choice)
+        return metric_dict
+
+    def json_change(self, type_name, metric_dict, metric_datas, range_or_instant, query_choice):
+        type_name_list = ['docker', 'node', 'sflow']
+        for t in type_name_list:
+            metric_dict[t] = {}
+        for num , m in enumerate(metric_datas):
+            for k in m['metric'].keys():
+                if k != 'id' and k != 'job':
+                    metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('label', {}).setdefault(k, m['metric'][k])
+            if range_or_instant == 'range':
+                ori_values = m['values']
+                data_time = []
+                values = []
+                for val in ori_values:
+                    # 加入时间轴和数据，为绘制图像做准备
+                    data_time.append(val[0])
+                    values.append(val[1])
+                metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('data', {}).setdefault('time', data_time)
+                metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('data', {}).setdefault('value', values)
+            else:
+                metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('data', {}).setdefault('time', m['value'][0])
+                metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('data', {}).setdefault('value', m['value'][1])
+        return metric_dict
 
 
     def query(self, query_choice, range_or_instant, start_time, end_time, step, query_expr_list=[]):# TODO:为了适应前端，应直接输入range_or_instant, start_time, end_time, step？
@@ -185,16 +222,17 @@ class Monitor_Query():
         if range_or_instant == "range":
             metric_datas = get_range_metric_data({"PROMETHEUS_URL": 'http://' + self.master_ip + ':' + self.prometheus_port}, query_expr_list, start_time, end_time, step)
             # pprint.pprint(metric_datas)
-            # if type_name != 'other':
-            if 'other' not in type_name:
-                range_data = self.range_ori_data_to_kv(metric_datas, type_name)
-                # pprint.pprint(range_data)
-                # return json.dumps({query_choice: range_data})
-                return json.dumps({query_choice: metric_datas})
-            else:
-                #TODO:考虑不同的数据处理？
-                metric_datas = self.deal_with_other_metric(range_or_instant, metric_datas)
-                return json.dumps({query_choice: metric_datas})
+            # if 'other' not in type_name:
+            #     range_data = self.range_ori_data_to_kv(metric_datas, type_name)
+            #     # pprint.pprint(range_data)
+            #     # return json.dumps({query_choice: range_data})
+            #     return json.dumps({query_choice: metric_datas})
+            # else:
+            #     #TODO:考虑不同的数据处理？
+            #     metric_datas = self.deal_with_other_metric(range_or_instant, metric_datas)
+            #     return json.dumps({query_choice: metric_datas})
+            return json.dumps(self.json_output(metric_datas, type_name, range_or_instant, query_choice))
+
 
             # 存储
             # filename = range_or_instant + '_' + query_choice + '_' +  str(start_time) + '_to_' + str(end_time) + "_" + "_step_" + step
@@ -205,16 +243,17 @@ class Monitor_Query():
         elif range_or_instant == "instant":
             metric_datas = get_instant_metric_data({"PROMETHEUS_URL": 'http://' + self.master_ip + ':' + self.prometheus_port}, query_expr_list)
             # pprint.pprint(metric_datas)
-            if 'other' not in type_name:
-                instant_data = self.instant_ori_data_to_kv(metric_datas, type_name)
-                # pprint.pprint(instant_data)
-                # return json.dumps({query_choice:instant_data})
-                return json.dumps({query_choice: metric_datas})
-            else:
-                #TODO:考虑不同的数据处理？
-                metric_datas = self.deal_with_other_metric(range_or_instant, metric_datas)
-                return json.dumps({query_choice: metric_datas})
+            # if 'other' not in type_name:
+            #     instant_data = self.instant_ori_data_to_kv(metric_datas, type_name)
+            #     # pprint.pprint(instant_data)
+            #     # return json.dumps({query_choice:instant_data})
+            #     return json.dumps({query_choice: metric_datas})
+            # else:
+            #     #TODO:考虑不同的数据处理？
+            #     metric_datas = self.deal_with_other_metric(range_or_instant, metric_datas)
+            #     return json.dumps({query_choice: metric_datas})
             # return json.dumps({query_choice: instant_data})
+            return json.dumps(self.json_output(metric_datas, type_name, range_or_instant, query_choice))
 
             # 存储
             # filename = range_or_instant + '_' + query_choice 
@@ -224,7 +263,7 @@ class Monitor_Query():
             #     json.dump(instant_data, f, indent=4)  # 整理为一定格式的数据
         else:
             return json.dumps({self.master_ip:"Unknown choice!"})
-
+    #TODO:增加输入（id=xxxx）
     def run_query(self, choice, range_or_instant, start_time="0", end_time="0", step="10", query_expr_list=[]):
         if choice == '1':
             # return pprint.pprint(self.query('other_metric', range_or_instant, start_time, end_time, step, query_expr_list=query_expr_list))

@@ -182,7 +182,7 @@ def query(query_choice):
         pprint.pprint(metric_datas)
         if 'other' not in query_choice:
             range_data = range_ori_data_to_kv(metric_datas, type_name)
-            pprint.pprint(range_data)
+            # pprint.pprint(range_data)
         # 存储
         # filename = range_or_instant + '_' + query_choice + '_' +  str(start_time) + '_to_' + str(end_time) + "_" + "_step_" + step
         # with open(filename + ".json", 'w') as f:
@@ -193,7 +193,7 @@ def query(query_choice):
         metric_datas = get_instant_metric_data({"PROMETHEUS_URL": "http://localhost:9090/"}, query_expr_list)
         pprint.pprint(metric_datas)
         instant_data = instant_ori_data_to_kv(metric_datas, type_name)
-        pprint.pprint(instant_data)
+        # pprint.pprint(instant_data)
         # 存储
         # filename = range_or_instant + '_' + query_choice 
         # with open(filename + ".json", 'w') as f:

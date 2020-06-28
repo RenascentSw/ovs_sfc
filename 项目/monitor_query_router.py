@@ -1,5 +1,6 @@
 from flask import Flask, request
 import monitor_query
+from flask_cors import cross_origin
 # import test_query
 app = Flask(__name__)
 
@@ -7,10 +8,11 @@ app = Flask(__name__)
 query = monitor_query.Monitor_Query()
     
 @app.route('/proquery')
+@cross_origin()
 def pro_query():
     choice = request.args.get('choice')
     query_expr_list = []
-    if choice == '1':
+    if choice == '1':    
         query_expr_list.append(request.args.get('query_expr_list'))
     range_or_instant = request.args.get('range_or_instant')
     if range_or_instant == "range":
