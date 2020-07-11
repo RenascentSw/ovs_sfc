@@ -25,6 +25,18 @@ def date_to_timestamp(date, format_string="%Y-%m-%d %H:%M:%S"):
     time_stamp = int(time.mktime(time_array))
     return time_stamp
 
+def findall(string, s):
+    ret = []
+    index = 0
+    while True:
+        index = string.find(s, index)
+        if index != -1:
+            ret.append(index)
+            index += len(s)
+        else:
+            break
+    return tuple(ret)
+
 def timestamp_to_date(time_stamp, format_string="%Y-%m-%d %H:%M:%S"):
     time_array = time.localtime(time_stamp)
     str_date = time.strftime(format_string, time_array)
@@ -155,7 +167,6 @@ class Monitor_Query():
     
     def json_output(self, metric_datas, type_name, range_or_instant, query_choice):
         metric_dict = {}
-        #TODO:调整JSON
         if "docker" in type_name:
             metric_dict['type'] = 'docker'
             metric_dict = self.json_change(metric_dict['type'], metric_dict, metric_datas, range_or_instant, query_choice)
@@ -171,10 +182,11 @@ class Monitor_Query():
         type_name_list = ['docker', 'node', 'sflow']
         for t in type_name_list:
             metric_dict[t] = {}
+        # metric_dict[type_name]['type'] = type_name
+        metric_dict[type_name]['metric_name'] = query_choice
+        metric_dict[type_name]['metric_datas'] = {}
         for num , m in enumerate(metric_datas):
-            for k in m['metric'].keys():
-                if k != 'id' and k != 'job':
-                    metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('label', {}).setdefault(k, m['metric'][k])
+            # metric_dict[type_name].setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('label', {}).setdefault(k, m['metric'][k])
             if range_or_instant == 'range':
                 ori_values = m['values']
                 data_time = []
@@ -183,29 +195,88 @@ class Monitor_Query():
                     # 加入时间轴和数据，为绘制图像做准备
                     data_time.append(val[0])
                     values.append(val[1])
-                metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('data', {}).setdefault('time', data_time)
-                metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('data', {}).setdefault('value', values)
+                metric_dict[type_name]['metric_datas'].setdefault('data' + str(num), {}).setdefault('name', 'data' + str(num))
+                metric_dict[type_name]['metric_datas']['data' + str(num)]['time'] = data_time
+                metric_dict[type_name]['metric_datas']['data' + str(num)]['value'] = values
+                # metric_dict[type_name]['metric_datas']['data' + str(num)]['label'] = {}
+                # for k in m['metric'].keys():
+                #     if k != 'job' and k != 'id':
+                #         metric_dict[type_name]['metric_datas']['data' + str(num)]['label'][k] = m['metric'][k]
+                # try:
+                #     del m['metric']['job']
+                #     del m['metric']['id']
+                # except:
+                #     pass
+                metric_dict[type_name]['metric_datas']['data' + str(num)]['label'] = m['metric']
+
+                # metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('data', {}).setdefault('time', data_time)
+                # metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('data', {}).setdefault('value', values)
             else:
-                metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('data', {}).setdefault('time', m['value'][0])
-                metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('data', {}).setdefault('value', m['value'][1])
+                metric_dict[type_name]['metric_datas'].setdefault('data' + str(num), {}).setdefault('name', 'data' + str(num))
+                metric_dict[type_name]['metric_datas']['data' + str(num)]['time'] = m['value'][0]
+                metric_dict[type_name]['metric_datas']['data' + str(num)]['value'] = m['value'][1]
+                # metric_dict[type_name]['metric_datas']['data' + str(num)]['label'] = {}
+                # try:
+                #     del m['metric']['job']
+                #     del m['metric']['id']
+                # except:
+                #     pass
+                metric_dict[type_name]['metric_datas']['data' + str(num)]['label'] = m['metric']
+                # metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('data', {}).setdefault('time', m['value'][0])
+                # metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('data', {}).setdefault('value', m['value'][1])
         return metric_dict
+    
+    def container_add_id(self, query_expr_list, container_id):
+        index_tuple = findall(query_expr_list[0], '}')
+        final_query_expr_list = []
+        final_query_expr = ''
+        for i in range(len(index_tuple)):
+            if i == 0 and len(index_tuple) > 1:
+                final_query_expr += query_expr_list[0][:index_tuple[i]]
+                final_query_expr = self.mod_expr(final_query_expr, query_expr_list, index_tuple, i)
+                final_query_expr += "id=\"/docker/" + container_id + "\""
+            elif i == 0 and len(index_tuple) == 1:
+                # print(query_expr_list[0][t[i] - 1])
+                final_query_expr += query_expr_list[0][:index_tuple[i]]
+                final_query_expr = self.mod_expr(final_query_expr, query_expr_list, index_tuple, i)
+                final_query_expr += "id=\"/docker/" + container_id + "\"" + query_expr_list[0][index_tuple[i]: ]
+            elif i == len(index_tuple) - 1 and i != 0:
+                final_query_expr += query_expr_list[0][index_tuple[i-1]:index_tuple[i]]
+                final_query_expr = self.mod_expr(final_query_expr, query_expr_list, index_tuple, i)
+                final_query_expr += "id=\"/docker/" + container_id + "\"" + query_expr_list[0][index_tuple[i]: ]
+            else:
+                final_query_expr += query_expr_list[0][index_tuple[i-1]:index_tuple[i]]
+                final_query_expr = self.mod_expr(final_query_expr, query_expr_list, index_tuple, i)
+                # if query_expr_list[0][t[i] - 1] == '\"':
+                #     final_query_expr += "\","
+                final_query_expr += "id=\"/docker/" + container_id + "\""
+        # for i in range(len(index_tuple)):
+        #     if i == 0:
+        #         final_query_expr += query_expr_list[:index_tuple[i] - 1] + "\", id=\"/docker/" + container_id + "\""
+        #     elif i == len(index_tuple) - 1:
+        #         final_query_expr += query_expr_list[index_tuple[i-1]:index_tuple[i] - 1] + "\", id=\"/docker/" + container_id + "\"" + \
+        #         query_expr_list[index_tuple[i]: ]
+        #     else:
+        #         final_query_expr += query_expr_list[index_tuple[i-1]:index_tuple[i] - 1] + "\", id=\"/docker/" + container_id + "\""
+        final_query_expr_list.append(final_query_expr)
+        return final_query_expr_list
+    
+    def mod_expr(self, final_query_expr, query_expr_list, index_tuple, i):
+        if query_expr_list[0][index_tuple[i] - 1] == '\"':
+            final_query_expr += ","
+        return final_query_expr
 
 
-    def query(self, query_choice, range_or_instant, start_time, end_time, step, query_expr_list=[]):# TODO:为了适应前端，应直接输入range_or_instant, start_time, end_time, step？
+    def query(self, query_choice, range_or_instant, start_time, end_time, step, query_expr_list=[], container_id='0'):
         # 查询类型判断，决定输出类型
-        if "docker" in query_choice:
-            type_name = 'docker'
-        elif "node" in query_choice:
-            type_name = 'node'
-        elif "sflow" in query_choice:
-            type_name = 'sflow'
-        
         if 'other' in query_choice:
             # type_name = 'other'
             query_expr_list = query_expr_list
             if 'container' in query_expr_list[0]:
                 query_choice = query_expr_list[0][query_expr_list[0].find('container'):].split('{')[0]
                 type_name = 'other_docker'
+                if container_id != '0':
+                    query_expr_list = self.container_add_id(query_expr_list, container_id)
             elif 'node' in query_expr_list[0]:
                 query_choice = query_expr_list[0][query_expr_list[0].find('node'):].split('{')[0]
                 type_name = 'other_node'
@@ -214,6 +285,15 @@ class Monitor_Query():
                 type_name = 'other_sflow'
         else:
             query_expr_list = query_dict[query_choice]
+        
+        if "docker" in query_choice:
+            type_name = 'docker'
+            if container_id != '0':
+                query_expr_list = self.container_add_id(query_expr_list, container_id)
+        elif "node" in query_choice:
+            type_name = 'node'
+        elif "sflow" in query_choice:
+            type_name = 'sflow'
         
         if start_time != '0' and end_time != '0':
             start_time = date_to_timestamp(start_time)
@@ -231,8 +311,8 @@ class Monitor_Query():
             #     #TODO:考虑不同的数据处理？
             #     metric_datas = self.deal_with_other_metric(range_or_instant, metric_datas)
             #     return json.dumps({query_choice: metric_datas})
-            return json.dumps(self.json_output(metric_datas, type_name, range_or_instant, query_choice))
-
+            # return json.dumps(self.json_output(metric_datas, type_name, range_or_instant, query_choice), sort_keys=True, indent=4)
+            return self.json_output(metric_datas, type_name, range_or_instant, query_choice)
 
             # 存储
             # filename = range_or_instant + '_' + query_choice + '_' +  str(start_time) + '_to_' + str(end_time) + "_" + "_step_" + step
@@ -253,7 +333,9 @@ class Monitor_Query():
             #     metric_datas = self.deal_with_other_metric(range_or_instant, metric_datas)
             #     return json.dumps({query_choice: metric_datas})
             # return json.dumps({query_choice: instant_data})
-            return json.dumps(self.json_output(metric_datas, type_name, range_or_instant, query_choice))
+            # return json.dumps(self.json_output(metric_datas, type_name, range_or_instant, query_choice), sort_keys=True, indent=4)
+            return self.json_output(metric_datas, type_name, range_or_instant, query_choice)
+            # return json.dumps({query_expr_list[0]:self.json_output(metric_datas, type_name, range_or_instant, query_choice)})
 
             # 存储
             # filename = range_or_instant + '_' + query_choice 
@@ -262,12 +344,13 @@ class Monitor_Query():
             #     f.write("\n")
             #     json.dump(instant_data, f, indent=4)  # 整理为一定格式的数据
         else:
-            return json.dumps({self.master_ip:"Unknown choice!"})
+            # return json.dumps({self.master_ip:"Unknown choice!"})
+            return {self.master_ip:"Unknown choice!"}
     #TODO:增加输入（id=xxxx）
-    def run_query(self, choice, range_or_instant, start_time="0", end_time="0", step="10", query_expr_list=[]):
+    def run_query(self, choice, range_or_instant, start_time="0", end_time="0", step="10", query_expr_list=[], container_id='0'):
         if choice == '1':
             # return pprint.pprint(self.query('other_metric', range_or_instant, start_time, end_time, step, query_expr_list=query_expr_list))
-            return self.query('other_metric', range_or_instant, start_time, end_time, step, query_expr_list=query_expr_list)
+            return self.query('other_metric', range_or_instant, start_time, end_time, step, query_expr_list=query_expr_list, container_id=container_id)
         elif choice == '2':
             # return pprint.pprint(self.query('node_cpu', range_or_instant, start_time, end_time, step))
             return self.query('node_cpu', range_or_instant, start_time, end_time, step)
@@ -278,13 +361,14 @@ class Monitor_Query():
         elif choice == '5':
             return self.query('node_load', range_or_instant, start_time, end_time, step)
         elif choice == '6':
-            return self.query('docker_sent_traffic', range_or_instant, start_time, end_time, step)
+            return self.query('docker_sent_traffic', range_or_instant, start_time, end_time, step, container_id=container_id)
         elif choice == '7':
-            return self.query('docker_recv_traffic', range_or_instant, start_time, end_time, step)
+            return self.query('docker_recv_traffic', range_or_instant, start_time, end_time, step, container_id=container_id)
         elif choice == '8':
             return self.query('sflow_ifinoctets', range_or_instant, start_time, end_time, step)
         else:
-            return json.dumps({self.master_ip:"Unknown choice!"})
+            # return json.dumps({self.master_ip:"Unknown choice!"})
+            return {self.master_ip:"Unknown choice!"}
 
 if __name__ == "__main__":
     # query = Monitor_Query()

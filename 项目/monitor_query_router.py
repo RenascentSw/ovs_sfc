@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import monitor_query
 from flask_cors import cross_origin
 # import test_query
@@ -11,6 +11,7 @@ query = monitor_query.Monitor_Query()
 @cross_origin()
 def pro_query():
     choice = request.args.get('choice')
+    container_id = request.args.get('container_id', '0')
     query_expr_list = []
     if choice == '1':    
         query_expr_list.append(request.args.get('query_expr_list'))
@@ -19,10 +20,11 @@ def pro_query():
         start_time = request.args.get('start_time')
         end_time = request.args.get('end_time')
         step = request.args.get('step') # 每个数据点之间的间隔（单位：s）
-        metric_datas = query.run_query(choice, range_or_instant, start_time, end_time, step, query_expr_list=query_expr_list)
+        metric_datas = query.run_query(choice, range_or_instant, start_time, end_time, step, query_expr_list=query_expr_list, container_id=container_id)
     elif range_or_instant == "instant":
-        metric_datas = query.run_query(choice, range_or_instant, query_expr_list=query_expr_list)
-    return metric_datas
+        metric_datas = query.run_query(choice, range_or_instant, query_expr_list=query_expr_list, container_id=container_id)
+    # return metric_datas
+    return jsonify(metric_datas)
 
 
 # @app.route('/test')
@@ -32,8 +34,11 @@ def pro_query():
 #     return test_query.query(choice, range_or_instant)
 
 if __name__ == '__main__':
-    app.run('0.0.0.0',port=5001, debug=True)
+    app.run('0.0.0.0',port=5003, debug=True)
 # http://47.108.183.103:5003/proquery?choice=1&range_or_instant=range&start_time=2020-06-26 12:15:50&end_time=2020-06-26 12:16:50&step=10&query_expr_list=sum(rate(container_cpu_usage_seconds_total{name!=""}[5m])) by (name) * 100
-# http://47.108.183.103:5003/proquery?choice=1&range_or_instant=instant&query_expr_list=sum(rate(container_cpu_usage_seconds_total{ }[5m])) by (name) * 100
+# http://47.108.183.103:5003/proquery?choice=1&range_or_instant=instant&query_expr_list=sum(rate(container_cpu_usage_seconds_total{ }[5m])) by (name) * 100&container_id=
 # http://47.108.183.103:5003/proquery?choice=2&range_or_instant=range&start_time=2020-06-26 12:15:50&end_time=2020-06-26 12:16:50&step=10
 # http://47.108.183.103:5003/proquery?choice=6&range_or_instant=instant
+# http://47.108.183.103:5003/proquery?choice=1&range_or_instant=instant&query_expr_list=container_memory_rss{name!=""}&container_id=/docker/51917dad39429c06541c4fee978543594e438ad6e9b8aa14dd0e32b4f4acbd06
+# 成功：
+# http://47.108.183.103:5003/proquery?choice=1&range_or_instant=instant&query_expr_list=container_memory_rss{name!=""}&container_id=51917dad39429c06541c4fee978543594e438ad6e9b8aa14dd0e32b4f4acbd06

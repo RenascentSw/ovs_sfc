@@ -71,6 +71,19 @@ def get_instant_metric_data(config, metric_dict):
 
     return metric_datas
 
+def findall(string, s):
+    ret = []
+    index = 0
+    while True:
+        index = string.find(s, index)
+        if index != -1:
+            ret.append(index)
+            index += len(s)
+        else:
+            break
+    return tuple(ret)
+
+
 def date_to_timestamp(date, format_string="%Y-%m-%d %H:%M:%S"):
     time_array = time.strptime(date, format_string)
     time_stamp = int(time.mktime(time_array))
