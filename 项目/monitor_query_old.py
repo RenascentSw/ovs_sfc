@@ -131,15 +131,81 @@ def get_instant_metric_data(config, metric_dict):
     return metric_datas
 # 从Prometheus HTTP API获取范围数据的监控类
 class Monitor_Query():
-    '''
-    @description: 从Prometheus HTTP API获取范围数据的监控类,主要作用是查询Prometheus
-    数据库中的数据，并将其输出为json格式 
-    '''
     def __init__(self, master_ip='localhost', prometheus_port='9090'):
         self.master_ip=master_ip
         # self.ip = address_utils.get_host_ip() 
         self.prometheus_port = prometheus_port
+    
+    def deal_with_other_metric(self, range_or_instant, metric_datas):
+        '''
+        @description: 
+        @param {type} param
+        @return: 
+        '''
+        if range_or_instant == 'range':
+            for m in metric_datas:
+                ori_values = m.get('values', [])
+                values = []
+                for val in ori_values:
+                    values.append(val[1])
+                m['values'] = values
+        else:
+            for m in metric_datas:
+                ori_values = m.get('value', 0)
+                m['value'] = ori_values[1]
+        return metric_datas
 
+    def range_ori_data_to_kv(self, metric_datas, type_name):
+        metric_dict = {}
+        # instance = ''
+        # name = ''
+        for m in metric_datas:
+            ori_values = m.get('values', [])
+            values = []
+            data_time = []
+            for val in ori_values:
+                # 加入时间轴和数据，为绘制图像做准备
+                # data_time.append(timestamp_to_date(val[0]))
+                values.append(val[1])
+            # print(data_time)
+            instance = m['metric']['instance']
+            if type_name == 'node':
+                metric_dict[instance] = values
+            elif type_name == 'docker':
+                name = m['metric']['name']
+                interface = m['metric']['interface']
+                metric_dict.setdefault(instance, {})
+                if interface != dict():
+                    metric_dict[instance].setdefault(name, {}).setdefault(interface, []).extend(values)
+                else:
+                    metric_dict[instance].setdefault(name, []).extend(values)
+            elif type_name == 'sflow':
+                agent = m.get('metric', {}).get('agent', {})
+                ifname = m.get('metric', {}).get('ifname', {})
+                metric_dict.setdefault(agent, {})
+                metric_dict[agent].setdefault(ifname, []).extend(values)
+        return metric_dict
+
+    def instant_ori_data_to_kv(self, metric_datas, type_name):
+        metric_dict = {}
+        for m in metric_datas:
+            instance = m['metric']['instance']
+            values = m.get('value', 0)
+            if type_name == 'node':
+                metric_dict[instance] = values[1]
+            elif type_name == 'docker':
+                name = m['metric']['name']
+                interface = m['metric']['interface']
+                metric_dict.setdefault(instance, {})
+                metric_dict[instance].setdefault(name, {}).setdefault(interface, 0)
+                metric_dict[instance][name][interface] = values[1]
+            elif type_name == 'sflow':
+                agent = m['metric']['agent']
+                ifname = m['metric']['ifname']
+                metric_dict.setdefault(agent, {})
+                metric_dict[agent].setdefault(ifname, 0)
+                metric_dict[agent][ifname] = values[1]
+        return metric_dict
         
     def json_output(self, metric_datas, type_name, range_or_instant, query_choice):
         metric_dict = {}
@@ -174,12 +240,32 @@ class Monitor_Query():
                 metric_dict[type_name]['metric_datas'].setdefault('data' + str(num), {}).setdefault('name', 'data' + str(num))
                 metric_dict[type_name]['metric_datas']['data' + str(num)]['time'] = data_time
                 metric_dict[type_name]['metric_datas']['data' + str(num)]['value'] = values
+                # metric_dict[type_name]['metric_datas']['data' + str(num)]['label'] = {}
+                # for k in m['metric'].keys():
+                #     if k != 'job' and k != 'id':
+                #         metric_dict[type_name]['metric_datas']['data' + str(num)]['label'][k] = m['metric'][k]
+                # try:
+                #     del m['metric']['job']
+                #     del m['metric']['id']
+                # except:
+                #     pass
                 metric_dict[type_name]['metric_datas']['data' + str(num)]['label'] = m['metric']
+
+                # metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('data', {}).setdefault('time', data_time)
+                # metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('data', {}).setdefault('value', values)
             else:
                 metric_dict[type_name]['metric_datas'].setdefault('data' + str(num), {}).setdefault('name', 'data' + str(num))
                 metric_dict[type_name]['metric_datas']['data' + str(num)]['time'] = m['value'][0]
                 metric_dict[type_name]['metric_datas']['data' + str(num)]['value'] = m['value'][1]
+                # metric_dict[type_name]['metric_datas']['data' + str(num)]['label'] = {}
+                # try:
+                #     del m['metric']['job']
+                #     del m['metric']['id']
+                # except:
+                #     pass
                 metric_dict[type_name]['metric_datas']['data' + str(num)]['label'] = m['metric']
+                # metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('data', {}).setdefault('time', m['value'][0])
+                # metric_dict.setdefault(type_name, {}).setdefault(query_choice, {}).setdefault('num_' + str(num), {}).setdefault('data', {}).setdefault('value', m['value'][1])
         return metric_dict
     
     def container_add_id(self, query_expr_list, container_id):
@@ -206,6 +292,14 @@ class Monitor_Query():
                 # if query_expr_list[0][t[i] - 1] == '\"':
                 #     final_query_expr += "\","
                 final_query_expr += "id=\"/docker/" + container_id + "\""
+        # for i in range(len(index_tuple)):
+        #     if i == 0:
+        #         final_query_expr += query_expr_list[:index_tuple[i] - 1] + "\", id=\"/docker/" + container_id + "\""
+        #     elif i == len(index_tuple) - 1:
+        #         final_query_expr += query_expr_list[index_tuple[i-1]:index_tuple[i] - 1] + "\", id=\"/docker/" + container_id + "\"" + \
+        #         query_expr_list[index_tuple[i]: ]
+        #     else:
+        #         final_query_expr += query_expr_list[index_tuple[i-1]:index_tuple[i] - 1] + "\", id=\"/docker/" + container_id + "\""
         final_query_expr_list.append(final_query_expr)
         return final_query_expr_list
     
@@ -250,6 +344,16 @@ class Monitor_Query():
 
         if range_or_instant == "range":
             metric_datas = get_range_metric_data({"PROMETHEUS_URL": 'http://' + self.master_ip + ':' + self.prometheus_port}, query_expr_list, start_time, end_time, step)
+            # pprint.pprint(metric_datas)
+            # if 'other' not in type_name:
+            #     range_data = self.range_ori_data_to_kv(metric_datas, type_name)
+            #     # pprint.pprint(range_data)
+            #     # return json.dumps({query_choice: range_data})
+            #     return json.dumps({query_choice: metric_datas})
+            # else:
+            #     #TODO:考虑不同的数据处理？
+            #     metric_datas = self.deal_with_other_metric(range_or_instant, metric_datas)
+            #     return json.dumps({query_choice: metric_datas})
             # return json.dumps(self.json_output(metric_datas, type_name, range_or_instant, query_choice), sort_keys=True, indent=4)
             return self.json_output(metric_datas, type_name, range_or_instant, query_choice)
 
@@ -261,6 +365,17 @@ class Monitor_Query():
             #     json.dump(range_data, f, indent=4)  # 整理为一定格式的数据
         elif range_or_instant == "instant":
             metric_datas = get_instant_metric_data({"PROMETHEUS_URL": 'http://' + self.master_ip + ':' + self.prometheus_port}, query_expr_list)
+            # pprint.pprint(metric_datas)
+            # if 'other' not in type_name:
+            #     instant_data = self.instant_ori_data_to_kv(metric_datas, type_name)
+            #     # pprint.pprint(instant_data)
+            #     # return json.dumps({query_choice:instant_data})
+            #     return json.dumps({query_choice: metric_datas})
+            # else:
+            #     #TODO:考虑不同的数据处理？
+            #     metric_datas = self.deal_with_other_metric(range_or_instant, metric_datas)
+            #     return json.dumps({query_choice: metric_datas})
+            # return json.dumps({query_choice: instant_data})
             # return json.dumps(self.json_output(metric_datas, type_name, range_or_instant, query_choice), sort_keys=True, indent=4)
             return self.json_output(metric_datas, type_name, range_or_instant, query_choice)
             # return json.dumps({query_expr_list[0]:self.json_output(metric_datas, type_name, range_or_instant, query_choice)})
@@ -274,8 +389,7 @@ class Monitor_Query():
         else:
             # return json.dumps({self.master_ip:"Unknown choice!"})
             return {self.master_ip:"Unknown choice!"}
-
-
+    #TODO:增加输入（id=xxxx）
     def run_query(self, choice, range_or_instant, start_time="0", end_time="0", step="10", query_expr_list=[], container_id='0'):
         if choice == '1':
             # return pprint.pprint(self.query('other_metric', range_or_instant, start_time, end_time, step, query_expr_list=query_expr_list))
