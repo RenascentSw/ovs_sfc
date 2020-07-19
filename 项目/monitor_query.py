@@ -142,6 +142,15 @@ class Monitor_Query():
 
         
     def json_output(self, metric_datas, type_name, range_or_instant, query_choice):
+        '''
+        @description: 接收Prometheus返回的数据，利用json_change方法，对数据格式进行处理
+        @param:
+        :param metrics_datas: 未处理的指标
+        :param type_name: 未处理的指标类型（docker or node or sflow）
+        :param range_or_instant: 数据类型是时间段数据还是实时数据
+        :param query_choice: Prometheus指标的名字
+        @return: 处理后的数据格式
+        '''  
         metric_dict = {}
         if "docker" in type_name:
             metric_dict['type'] = 'docker'
@@ -155,6 +164,15 @@ class Monitor_Query():
         return metric_dict
 
     def json_change(self, type_name, metric_dict, metric_datas, range_or_instant, query_choice):
+        '''
+        @description: 对数据格式进行处理
+        @param:
+        :param metrics_datas: 未处理的指标
+        :param type_name: 未处理的指标类型（docker or node or sflow）
+        :param range_or_instant: 数据类型是时间段数据还是实时数据
+        :param query_choice: Prometheus指标的名字
+        @return: 处理后的数据格式
+        '''  
         type_name_list = ['docker', 'node', 'sflow']
         for t in type_name_list:
             metric_dict[t] = {}
@@ -183,40 +201,67 @@ class Monitor_Query():
         return metric_dict
     
     def container_add_id(self, query_expr_list, container_id):
+        '''
+        @description: 通过添加id表达式，过滤特定的容器信息
+        @param:
+        :param query_expr_list: Prometheus原始表达式
+        :param container_id: docker容器的ID号
+        @return: Prometheus最终的表达式
+        '''  
         index_tuple = findall(query_expr_list[0], '}')
         final_query_expr_list = []
         final_query_expr = ''
         for i in range(len(index_tuple)):
+            # 根据大括号的个数以及子字符串的个数修改最终表达式的写法
             if i == 0 and len(index_tuple) > 1:
                 final_query_expr += query_expr_list[0][:index_tuple[i]]
-                final_query_expr = self.mod_expr(final_query_expr, query_expr_list, index_tuple, i)
+                final_query_expr = self.mod_expr(final_query_expr, query_expr_list, index_tuple[i])
                 final_query_expr += "id=\"/docker/" + container_id + "\""
             elif i == 0 and len(index_tuple) == 1:
                 # print(query_expr_list[0][t[i] - 1])
                 final_query_expr += query_expr_list[0][:index_tuple[i]]
-                final_query_expr = self.mod_expr(final_query_expr, query_expr_list, index_tuple, i)
+                final_query_expr = self.mod_expr(final_query_expr, query_expr_list, index_tuple[i])
                 final_query_expr += "id=\"/docker/" + container_id + "\"" + query_expr_list[0][index_tuple[i]: ]
             elif i == len(index_tuple) - 1 and i != 0:
                 final_query_expr += query_expr_list[0][index_tuple[i-1]:index_tuple[i]]
-                final_query_expr = self.mod_expr(final_query_expr, query_expr_list, index_tuple, i)
+                final_query_expr = self.mod_expr(final_query_expr, query_expr_list, index_tuple[i])
                 final_query_expr += "id=\"/docker/" + container_id + "\"" + query_expr_list[0][index_tuple[i]: ]
             else:
                 final_query_expr += query_expr_list[0][index_tuple[i-1]:index_tuple[i]]
-                final_query_expr = self.mod_expr(final_query_expr, query_expr_list, index_tuple, i)
+                final_query_expr = self.mod_expr(final_query_expr, query_expr_list, index_tuple[i])
                 # if query_expr_list[0][t[i] - 1] == '\"':
                 #     final_query_expr += "\","
                 final_query_expr += "id=\"/docker/" + container_id + "\""
         final_query_expr_list.append(final_query_expr)
         return final_query_expr_list
     
-    def mod_expr(self, final_query_expr, query_expr_list, index_tuple, i):
-        if query_expr_list[0][index_tuple[i] - 1] == '\"':
+    def mod_expr(self, final_query_expr, query_expr_list, index):
+        '''
+        @description: 修改表达式细节
+        @param:
+        :param final_query_expr: Prometheus最终表达式
+        :param query_expr_list: Prometheus原始表达式
+        :param index: findall()方法返回的匹配子字符串的位置索引
+        @return: 最终的表达式
+        ''' 
+        if query_expr_list[0][index - 1] == '\"':
             final_query_expr += ","
         return final_query_expr
 
 
     def query(self, query_choice, range_or_instant, start_time, end_time, step, query_expr_list=[], container_id='0'):
-        
+        '''
+        @description: 根据查询的指标类型输出内容和格式
+        @param:
+        :param query_choice: Prometheus指标的名字
+        :param range_or_instant: 数据类型是时间段数据还是实时数据
+        :param start_time: 时间段查询的开始时间
+        :param end_time: 时间段查询的结束时间
+        :param step: 时间段查询的步长
+        :param query_expr_list: Prometheus原始表达式
+        :param container_id: 容器ID
+        @return: 处理后的查询数据
+        '''
         # 查询类型判断，决定输出类型
         if 'other' in query_choice:
             # type_name = 'other'
@@ -277,6 +322,18 @@ class Monitor_Query():
 
 
     def run_query(self, choice, range_or_instant, start_time="0", end_time="0", step="10", query_expr_list=[], container_id='0'):
+        '''
+        @description: 根据前端的输入查询特定指标
+        @param:
+        :param choice: 查询选项
+        :param range_or_instant: 数据类型是时间段数据还是实时数据
+        :param start_time: 时间段查询的开始时间
+        :param end_time: 时间段查询的结束时间
+        :param step: 时间段查询的步长
+        :param query_expr_list: Prometheus原始表达式
+        :param container_id: 容器ID
+        @return: 处理后的查询数据
+        '''
         if choice == '1':
             # return pprint.pprint(self.query('other_metric', range_or_instant, start_time, end_time, step, query_expr_list=query_expr_list))
             return self.query('other_metric', range_or_instant, start_time, end_time, step, query_expr_list=query_expr_list, container_id=container_id)

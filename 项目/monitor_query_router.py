@@ -1,8 +1,8 @@
 '''
 @Author: your name
 @Date: 2020-06-24 12:10:51
-@LastEditTime: 2020-07-12 11:27:31
-@LastEditors: Please set LastEditors
+@LastEditTime: 2020-07-15 10:29:36
+@LastEditors: sw
 @Description: In User Settings Edit
 @FilePath: \ovs_sfc\项目\monitor_query_router.py
 '''
@@ -50,3 +50,8 @@ if __name__ == '__main__':
 # http://47.108.183.103:5003/proquery?choice=1&range_or_instant=instant&query_expr_list=container_memory_rss{name!=""}&container_id=/docker/51917dad39429c06541c4fee978543594e438ad6e9b8aa14dd0e32b4f4acbd06
 # 成功：
 # http://47.108.183.103:5003/proquery?choice=1&range_or_instant=instant&query_expr_list=container_memory_rss{name!=""}&container_id=51917dad39429c06541c4fee978543594e438ad6e9b8aa14dd0e32b4f4acbd06
+
+
+# http://47.110.80.166:5003/proquery?choice=3&range_or_instant=instant&query_expr_list=container_memory_rss{name!=""}
+# http://47.110.80.166:5003/proquery?choice=3&range_or_instant=range&start_time=2020-07-15 10:20:50&end_time=2020-07-15 10:22:50&step=10
+# http://47.110.80.166:5003/proquery?choice=1&range_or_instant=range&query_expr_list=container_memory_rss{name!=""}&start_time=2020-07-15 10:20:50&end_time=2020-07-15 10:22:50&step=10
